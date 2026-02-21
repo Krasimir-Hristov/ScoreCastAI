@@ -43,8 +43,12 @@
 - Implement loading states with `<Suspense>` boundaries and `loading.tsx` files
 - Implement error states with `error.tsx` files using the Next.js App Router convention
 - No direct API calls from client components — receive data as props or resolved promises
+- Use **Framer Motion** for animations and transitions (already installed)
+- Use **shadcn/ui** for accessible, composable UI primitives — components live in `src/components/ui/`
 
-**Takes the lead on:** Any task involving pages, layouts, components, styling, UX flows, or `src/app/dashboard/` changes.
+**UI Library Stack:** Tailwind CSS v4 + shadcn/ui + Framer Motion
+
+**Takes the lead on:** Any task involving pages, layouts, components, styling, animations, UX flows, or `src/app/dashboard/` changes.
 
 ---
 
@@ -95,6 +99,8 @@ When responding to a task:
 | Language | TypeScript (strict) |
 | UI Runtime | React 19 |
 | Styling | Tailwind CSS v4 (`@theme` only) |
+| UI Components | shadcn/ui |
+| Animations | Framer Motion |
 | AI Model | Gemini 2.5 Flash |
 | Data Sources | Odds API, Football API, Tavily |
 | Package Manager | npm |
