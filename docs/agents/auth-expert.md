@@ -189,7 +189,7 @@ CREATE POLICY "Users can delete own predictions"
 | `src/app/(auth)/register/actions.ts` | Sign-up Server Action                  |
 | `src/app/(auth)/logout/actions.ts`   | Sign-out Server Action                 |
 | `src/app/auth/callback/route.ts`     | OAuth/Email confirmation callback      |
-| `src/middleware.ts`                  | Auth middleware (optional route guard) |
+| `src/lib/dal.ts`                     | Data Access Layer - centralized auth verification |
 
 ---
 
@@ -200,78 +200,88 @@ CREATE POLICY "Users can delete own predictions"
 - [ ] Email confirmation is enabled in Supabase dashboard (Settings > Auth > Email)
 - [ ] Password strength requirements configured (min 8 chars, uppercase, number, symbol)
 - [ ] Rate limiting enabled on auth endpoints (Supabase dashboard > Auth > Rate Limits)
-- [ ] All protected routes check `getUser()` in Server Component before rendering
+- [ ] All protected routes call `verifySession()` from DAL before rendering
 - [ ] `onAuthStateChange` subscription is cleaned up in `useEffect` return
 - [ ] RLS policies are tested for both authenticated and anonymous users
+- [ ] `src/lib/dal.ts` uses `'server-only'` directive to prevent client-side imports
+- [ ] `verifySession()` is wrapped in `cache()` to avoid duplicate auth queries
 
 ---
 
-## Middleware Pattern (Optional Route Guard)
+## Data Access Layer (DAL) — Modern Next.js 16 Approach
+
+**Why DAL instead of middleware?**  
+Next.js 16 recommends protecting routes using **Server Components with auth checks** instead of middleware. This approach:
+- ✅ Runs auth checks closer to data sources (more secure)
+- ✅ Avoids unnecessary checks on prefetched routes
+- ✅ Provides better TypeScript inference and error handling
+- ✅ Allows granular control per page/component
+
+**Create a centralized auth verification function:**
 
 ```ts
-// src/middleware.ts
-import { createServerClient } from '@supabase/ssr';
-import { NextResponse, type NextRequest } from 'next/server';
+// src/lib/dal.ts
+import 'server-only';
+import { createSupabaseServer } from '@/lib/supabase';
+import { redirect } from 'next/navigation';
+import { cache } from 'react';
 
-export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  });
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value;
-        },
-        set(name: string, value: string, options: any) {
-          response.cookies.set({ name, value, ...options });
-        },
-        remove(name: string, options: any) {
-          response.cookies.set({ name, value: '', ...options });
-        },
-      },
-    },
-  );
-
+export const verifySession = cache(async () => {
+  const supabase = createSupabaseServer();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Redirect unauthenticated users trying to access protected routes
-  if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/login', request.url));
+  if (!user) {
+    redirect('/login');
   }
 
-  // Redirect authenticated users away from auth pages
-  if (
-    user &&
-    (request.nextUrl.pathname.startsWith('/login') ||
-      request.nextUrl.pathname.startsWith('/register'))
-  ) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-
-  return response;
-}
-
-export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
-};
+  return { isAuth: true, userId: user.id, user };
+});
 ```
+
+**Use verifySession in protected pages:**
+
+```tsx
+// src/app/dashboard/page.tsx
+import { verifySession } from '@/lib/dal';
+
+export default async function DashboardPage() {
+  const { user } = await verifySession(); // Auto-redirects if not authenticated
+
+  return <div>Welcome {user.email}!</div>;
+}
+```
+
+**Use verifySession in Server Actions:**
+
+```ts
+// src/app/dashboard/actions.ts
+'use server';
+
+import { verifySession } from '@/lib/dal';
+
+export async function protectedAction() {
+  const { userId } = await verifySession(); // Throws if not authenticated
+  
+  // Proceed with action...
+}
+```
+
+**Benefits:**
+- Auth checks run only when pages/actions are actually accessed (not on prefetch)
+- `cache()` prevents duplicate auth queries within the same render pass
+- TypeScript knows `user` is defined after `verifySession()` returns
+- Easy to extend with role-based checks (e.g., `verifyAdmin()`)
 
 ---
 
-## Integration with @BackendExpert
+## Integration with @BackendExpert & @SupabaseExpert
 
 When a user is authenticated, their `user_id` (from `auth.uid()`) is automatically available in:
 
 - RLS policies (`auth.uid()`)
-- Server Actions (`const { data: { user } } = await supabase.auth.getUser()`)
+- DAL verification (`verifySession()` returns `userId`)
 - Database triggers (`auth.uid()` in PostgreSQL functions)
 
 **Example: Saving a prediction with user context**
@@ -280,18 +290,15 @@ When a user is authenticated, their `user_id` (from `auth.uid()`) is automatical
 // src/app/dashboard/actions.ts
 'use server';
 
+import { verifySession } from '@/lib/dal';
 import { createSupabaseServer } from '@/lib/supabase';
 
 export async function savePrediction(matchId: string, prediction: any) {
+  const { userId } = await verifySession(); // Ensures user is authenticated
+
   const supabase = createSupabaseServer();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
-
   const { data, error } = await supabase.from('predictions').insert({
-    user_id: user.id, // RLS policy enforces this matches auth.uid()
+    user_id: userId, // RLS policy enforces this matches auth.uid()
     match_id: matchId,
     prediction_data: prediction,
   });

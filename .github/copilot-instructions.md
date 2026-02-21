@@ -70,7 +70,7 @@
 - Build auth pages: `src/app/(auth)/login/`, `src/app/(auth)/register/`
 - Create auth Server Actions for all user operations
 - Configure Supabase Row Level Security (RLS) policies for all tables
-- Implement auth middleware (`src/middleware.ts`) for route protection
+- Implement Data Access Layer (`src/lib/dal.ts`) with `verifySession()` for route protection
 - Manage user sessions via `@supabase/ssr` and Next.js 16 cookies
 - Ensure `SUPABASE_SECRET_KEY` is never exposed to client components
 - Use `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` for browser-based auth operations
@@ -137,7 +137,7 @@ When responding to a task:
 | Supabase queries, database operations | @SupabaseExpert                          |
 | RLS policies, migrations              | @SupabaseExpert                          |
 | Authentication, login, sign up        | @AuthExpert                              |
-| User sessions, auth middleware        | @AuthExpert                              |
+| User sessions, Data Access Layer     | @AuthExpert                              |
 | Protected routes                      | @AuthExpert                              |
 | New page, layout, or component        | @FrontendExpert                          |
 | Dashboard UI, styling, Tailwind       | @FrontendExpert                          |
