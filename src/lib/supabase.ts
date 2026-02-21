@@ -61,7 +61,7 @@ export function createSupabaseServer() {
           }
         },
       },
-    }
+    },
   );
 }
 
@@ -74,6 +74,6 @@ export function createSupabaseServer() {
 export function createSupabaseBrowser() {
   return createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY! // RLS enforced
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!, // RLS enforced
   );
 }

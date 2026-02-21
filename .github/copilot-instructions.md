@@ -62,6 +62,26 @@
 
 ---
 
+### @AuthExpert
+
+**Role:** Security Specialist — Supabase Auth & User Management
+
+**Responsibilities:**
+
+- Implement all authentication flows: sign up, sign in, sign out, email confirmation
+- Build auth pages: `src/app/(auth)/login/`, `src/app/(auth)/register/`
+- Create auth Server Actions for all user operations
+- Configure Supabase Row Level Security (RLS) policies for all tables
+- Implement auth middleware (`src/middleware.ts`) for route protection
+- Manage user sessions via `@supabase/ssr` and Next.js 16 cookies
+- Ensure `SUPABASE_SECRET_KEY` is never exposed to client components
+- Use `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` for browser-based auth operations
+- Integrate with `@BackendExpert` for user-scoped database operations (favorites, history)
+
+**Takes the lead on:** Any task involving authentication, authorization, RLS policies, user management, protected routes, or `src/app/(auth)/` changes.
+
+---
+
 ### @QA_Auditor
 
 **Role:** Security & Logic Auditor — Code Review & Regression Testing
@@ -96,10 +116,14 @@ When responding to a task:
 | ------------------------------------- | ---------------------------------------- |
 | New API integration / Server Action   | @BackendExpert                           |
 | `src/proxy.ts` or `src/lib/` changes  | @BackendExpert                           |
-| Supabase queries, RLS, Auth           | @BackendExpert                           |
+| Supabase queries, database operations | @BackendExpert                           |
+| Authentication, login, sign up        | @AuthExpert                              |
+| RLS policies, user sessions           | @AuthExpert                              |
+| Protected routes, auth middleware     | @AuthExpert                              |
 | New page, layout, or component        | @FrontendExpert                          |
 | Dashboard UI, styling, Tailwind       | @FrontendExpert                          |
-| Auth pages, History page              | @FrontendExpert + @BackendExpert         |
+| Auth pages UI (login/register forms)  | @FrontendExpert + @AuthExpert            |
+| History page (user predictions)       | @FrontendExpert + @BackendExpert         |
 | Code review, security, 150-line audit | @QA_Auditor                              |
 | Bug in existing feature               | @QA_Auditor (triage) → hands off to lead |
 | Environment variable handling         | @BackendExpert + @QA_Auditor             |
