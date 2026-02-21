@@ -78,7 +78,6 @@ const results = await Promise.allSettled([
 | `src/lib/football.ts` | Football API integration               |
 | `src/lib/tavily.ts`   | Tavily search integration              |
 | `src/lib/gemini.ts`   | Gemini 2.5 Flash AI calls              |
-| `src/lib/supabase.ts` | Supabase server + browser clients      |
 
 ---
 
@@ -148,45 +147,6 @@ export async function generatePrediction(input: PredictionInput) {
   if (!parsed.success) return null;
 
   return parsed.data;
-}
-```
-
----
-
-## Supabase
-
-### Server Client (Server Actions, API Routes)
-
-```ts
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
-
-export function createSupabaseServer() {
-  const cookieStore = cookies();
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SECRET_KEY!, // bypasses RLS
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-      },
-    },
-  );
-}
-```
-
-### Browser Client (Client Components)
-
-```ts
-import { createBrowserClient } from '@supabase/ssr';
-
-export function createSupabaseBrowser() {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!, // RLS enforced
-  );
 }
 ```
 

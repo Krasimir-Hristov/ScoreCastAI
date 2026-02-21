@@ -23,20 +23,18 @@
 - Implement `src/proxy.ts` as the central server-side fetch orchestrator with **two distinct flows**:
   - `getMatchList()` — fetches all today's matches + odds (no matchId, used on page load)
   - `getDeepDiveAnalysis(matchId)` — fetches Tavily news + runs Gemini inference for one match
-- Build the entire `src/lib/` folder:
+- Build external API integrations in `src/lib/`:
   - `src/lib/odds.ts` — Odds API integration
   - `src/lib/football.ts` — Football API integration
   - `src/lib/tavily.ts` — Tavily contextual search integration
   - `src/lib/gemini.ts` — Gemini 2.5 Flash AI calls (JSON Mode) using `GOOGLE_API_KEY`
-  - `src/lib/supabase.ts` — Supabase server + browser client (history & favorites)
 - Use `Promise.allSettled()` for parallel fetching — **never `Promise.all()`** (partial failure must not break the dashboard)
-- Keep all API keys (`ODDS_API_KEY`, `FOOTBALL_API_KEY`, `TAVILY_API_KEY`, `GOOGLE_API_KEY`, `SUPABASE_SECRET_KEY`) strictly in server scope via `process.env`
-- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` may be exposed to the browser client (by design)
+- Keep all API keys (`ODDS_API_KEY`, `FOOTBALL_API_KEY`, `TAVILY_API_KEY`, `GOOGLE_API_KEY`) strictly in server scope via `process.env`
 - Export typed, promise-returning functions (no `async`/`await` at the call site — let React 19 `use()` handle resolution)
 - Validate all external API responses with **Zod** schemas — use `safeParse()`, never `parse()`
 - Enforce 150-line limit by splitting large modules into `src/lib/*/index.ts` subfolders
 
-**Takes the lead on:** Any task involving API routes, Server Actions, data fetching, Supabase, environment variables, or `src/proxy.ts` / `src/lib/` changes.
+**Takes the lead on:** Any task involving external API integrations (Odds, Football, Tavily, Gemini), Server Actions, data fetching, or `src/proxy.ts` / `src/lib/` changes.
 
 ---
 
@@ -82,6 +80,26 @@
 
 ---
 
+### @SupabaseExpert
+
+**Role:** Database Specialist — Supabase Postgres, RLS, and Data Operations
+
+**Responsibilities:**
+
+- Implement `src/lib/supabase.ts` — Supabase server + browser client factories
+- Design and manage database schema via Supabase migrations (SQL files)
+- Configure Row Level Security (RLS) policies for all tables
+- Generate TypeScript types from database schema using Supabase CLI
+- Build Server Actions for CRUD operations (insert, select, update, delete)
+- Implement realtime subscriptions for live data updates
+- Ensure `SUPABASE_SECRET_KEY` is never exposed to client components
+- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` may be exposed to the browser client (by design)
+- Integrate with `@AuthExpert` for user-scoped queries using `auth.uid()`
+
+**Takes the lead on:** Any task involving database operations, RLS setup, migrations, Supabase queries, or `src/lib/supabase.ts` changes.
+
+---
+
 ### @QA_Auditor
 
 **Role:** Security & Logic Auditor — Code Review & Regression Testing
@@ -116,14 +134,15 @@ When responding to a task:
 | ------------------------------------- | ---------------------------------------- |
 | New API integration / Server Action   | @BackendExpert                           |
 | `src/proxy.ts` or `src/lib/` changes  | @BackendExpert                           |
-| Supabase queries, database operations | @BackendExpert                           |
+| Supabase queries, database operations | @SupabaseExpert                          |
+| RLS policies, migrations              | @SupabaseExpert                          |
 | Authentication, login, sign up        | @AuthExpert                              |
-| RLS policies, user sessions           | @AuthExpert                              |
-| Protected routes, auth middleware     | @AuthExpert                              |
+| User sessions, auth middleware        | @AuthExpert                              |
+| Protected routes                      | @AuthExpert                              |
 | New page, layout, or component        | @FrontendExpert                          |
 | Dashboard UI, styling, Tailwind       | @FrontendExpert                          |
 | Auth pages UI (login/register forms)  | @FrontendExpert + @AuthExpert            |
-| History page (user predictions)       | @FrontendExpert + @BackendExpert         |
+| History page (user predictions)       | @FrontendExpert + @SupabaseExpert        |
 | Code review, security, 150-line audit | @QA_Auditor                              |
 | Bug in existing feature               | @QA_Auditor (triage) → hands off to lead |
 | Environment variable handling         | @BackendExpert + @QA_Auditor             |
