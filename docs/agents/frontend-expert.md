@@ -86,14 +86,74 @@ export function MatchCard({
 
 ## File & Folder Conventions
 
-| Path                            | Purpose                                         |
-| ------------------------------- | ----------------------------------------------- |
-| `src/app/dashboard/page.tsx`    | Dashboard Server Component (passes promises)    |
-| `src/app/dashboard/layout.tsx`  | Dashboard layout & nav                          |
-| `src/app/dashboard/loading.tsx` | Suspense fallback shown by Next.js              |
-| `src/app/dashboard/error.tsx`   | Error boundary (must be a Client Component)     |
-| `src/components/`               | Shared reusable components (max 150 lines each) |
-| `src/components/ui/`            | shadcn/ui primitives (auto-generated)           |
+| Path                               | Purpose                                         |
+| ---------------------------------- | ----------------------------------------------- |
+| `src/app/dashboard/page.tsx`       | Dashboard Server Component (passes promises)    |
+| `src/app/dashboard/layout.tsx`     | Dashboard layout & nav                          |
+| `src/app/dashboard/loading.tsx`    | Suspense fallback shown by Next.js              |
+| `src/app/dashboard/error.tsx`      | Error boundary (must be a Client Component)     |
+| `src/app/(auth)/login/page.tsx`    | Login page (Email + Password)                   |
+| `src/app/(auth)/register/page.tsx` | Register page (Email + Password)                |
+| `src/app/history/page.tsx`         | User's saved predictions history (Supabase)     |
+| `src/components/`                  | Shared reusable components (max 150 lines each) |
+| `src/components/ui/`               | shadcn/ui primitives (auto-generated)           |
+
+---
+
+## Dark/Light Mode with Tailwind v4
+
+```css
+/* src/app/globals.css */
+@import 'tailwindcss';
+
+@theme {
+  /* Light mode (default) */
+  --color-surface: #ffffff;
+  --color-text: #1a1a2e;
+
+  /* Dark mode */
+  @media (prefers-color-scheme: dark) {
+    --color-surface: #1a1a2e;
+    --color-text: #ffffff;
+  }
+}
+```
+
+```tsx
+// Components automatically respect system preference
+<div className='bg-surface text-text'>Content adapts to light/dark mode</div>
+```
+
+---
+
+## Deep Dive Button Pattern
+
+```tsx
+'use client';
+import { useState } from 'react';
+import { getDeepDiveAnalysis } from '@/proxy';
+
+export function DeepDiveButton({ matchId }: { matchId: string }) {
+  const [analysisPromise, setAnalysisPromise] = useState<Promise<any> | null>(
+    null,
+  );
+
+  const handleClick = () => {
+    setAnalysisPromise(getDeepDiveAnalysis(matchId));
+  };
+
+  return (
+    <>
+      <button onClick={handleClick}>Deep Dive Analysis</button>
+      {analysisPromise && (
+        <Suspense fallback={<Spinner />}>
+          <AnalysisResult promise={analysisPromise} />
+        </Suspense>
+      )}
+    </>
+  );
+}
+```
 
 ---
 

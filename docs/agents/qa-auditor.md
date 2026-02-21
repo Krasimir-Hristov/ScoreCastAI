@@ -64,6 +64,14 @@
 - [ ] Flag any API usage that differs from the latest Context7 docs (may indicate outdated patterns)
 - [ ] Note in the Audit Summary which libraries were cross-checked with Context7
 
+### 8. Supabase Security
+
+- [ ] `SUPABASE_SECRET_KEY` never appears in `src/app/` or `src/components/`
+- [ ] Only `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are exposed to browser
+- [ ] Row Level Security (RLS) is enabled on all tables in Supabase
+- [ ] User can only access own predictions: `auth.uid() = user_id` policy
+- [ ] No admin operations (`supabaseAdmin.auth.admin.*`) in Client Components
+
 ---
 
 ## Audit Summary Template

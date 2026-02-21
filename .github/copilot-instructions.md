@@ -20,18 +20,23 @@
 
 **Responsibilities:**
 
-- Implement `src/proxy.ts` as the central server-side fetch orchestrator
+- Implement `src/proxy.ts` as the central server-side fetch orchestrator with **two distinct flows**:
+  - `getMatchList()` — fetches all today's matches + odds (no matchId, used on page load)
+  - `getDeepDiveAnalysis(matchId)` — fetches Tavily news + runs Gemini inference for one match
 - Build the entire `src/lib/` folder:
   - `src/lib/odds.ts` — Odds API integration
   - `src/lib/football.ts` — Football API integration
-  - `src/lib/tavily.ts` — Tavily search integration
-  - `src/lib/gemini.ts` — Gemini 2.5 Flash AI calls using `GOOGLE_API_KEY`
-- Use `Promise.all()` for parallel fetching across all three data sources
-- Keep all API keys (`ODDS_API_KEY`, `FOOTBALL_API_KEY`, `TAVILY_API_KEY`, `GOOGLE_API_KEY`) strictly in server scope via `process.env`
+  - `src/lib/tavily.ts` — Tavily contextual search integration
+  - `src/lib/gemini.ts` — Gemini 2.5 Flash AI calls (JSON Mode) using `GOOGLE_API_KEY`
+  - `src/lib/supabase.ts` — Supabase server + browser client (history & favorites)
+- Use `Promise.allSettled()` for parallel fetching — **never `Promise.all()`** (partial failure must not break the dashboard)
+- Keep all API keys (`ODDS_API_KEY`, `FOOTBALL_API_KEY`, `TAVILY_API_KEY`, `GOOGLE_API_KEY`, `SUPABASE_SECRET_KEY`) strictly in server scope via `process.env`
+- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` may be exposed to the browser client (by design)
 - Export typed, promise-returning functions (no `async`/`await` at the call site — let React 19 `use()` handle resolution)
+- Validate all external API responses with **Zod** schemas — use `safeParse()`, never `parse()`
 - Enforce 150-line limit by splitting large modules into `src/lib/*/index.ts` subfolders
 
-**Takes the lead on:** Any task involving API routes, Server Actions, data fetching, environment variables, or `src/proxy.ts` / `src/lib/` changes.
+**Takes the lead on:** Any task involving API routes, Server Actions, data fetching, Supabase, environment variables, or `src/proxy.ts` / `src/lib/` changes.
 
 ---
 
@@ -91,8 +96,10 @@ When responding to a task:
 | ------------------------------------- | ---------------------------------------- |
 | New API integration / Server Action   | @BackendExpert                           |
 | `src/proxy.ts` or `src/lib/` changes  | @BackendExpert                           |
+| Supabase queries, RLS, Auth           | @BackendExpert                           |
 | New page, layout, or component        | @FrontendExpert                          |
 | Dashboard UI, styling, Tailwind       | @FrontendExpert                          |
+| Auth pages, History page              | @FrontendExpert + @BackendExpert         |
 | Code review, security, 150-line audit | @QA_Auditor                              |
 | Bug in existing feature               | @QA_Auditor (triage) → hands off to lead |
 | Environment variable handling         | @BackendExpert + @QA_Auditor             |
@@ -109,6 +116,8 @@ When responding to a task:
 | Styling         | Tailwind CSS v4 (`@theme` only) |
 | UI Components   | shadcn/ui                       |
 | Animations      | Framer Motion                   |
+| Validation      | Zod                             |
+| Database        | Supabase (Postgres + Auth)      |
 | AI Model        | Gemini 2.5 Flash                |
 | Data Sources    | Odds API, Football API, Tavily  |
 | Package Manager | npm                             |
