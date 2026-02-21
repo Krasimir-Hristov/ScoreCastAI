@@ -181,14 +181,14 @@ CREATE POLICY "Users can delete own predictions"
 
 ## Source Files Owned
 
-| File                                 | Purpose                                |
-| ------------------------------------ | -------------------------------------- |
-| `src/app/(auth)/login/page.tsx`      | Login page UI                          |
-| `src/app/(auth)/login/actions.ts`    | Sign-in Server Action                  |
-| `src/app/(auth)/register/page.tsx`   | Registration page UI                   |
-| `src/app/(auth)/register/actions.ts` | Sign-up Server Action                  |
-| `src/app/(auth)/logout/actions.ts`   | Sign-out Server Action                 |
-| `src/app/auth/callback/route.ts`     | OAuth/Email confirmation callback      |
+| File                                 | Purpose                                           |
+| ------------------------------------ | ------------------------------------------------- |
+| `src/app/(auth)/login/page.tsx`      | Login page UI                                     |
+| `src/app/(auth)/login/actions.ts`    | Sign-in Server Action                             |
+| `src/app/(auth)/register/page.tsx`   | Registration page UI                              |
+| `src/app/(auth)/register/actions.ts` | Sign-up Server Action                             |
+| `src/app/(auth)/logout/actions.ts`   | Sign-out Server Action                            |
+| `src/app/auth/callback/route.ts`     | OAuth/Email confirmation callback                 |
 | `src/lib/dal.ts`                     | Data Access Layer - centralized auth verification |
 
 ---
@@ -212,6 +212,7 @@ CREATE POLICY "Users can delete own predictions"
 
 **Why DAL instead of middleware?**  
 Next.js 16 recommends protecting routes using **Server Components with auth checks** instead of middleware. This approach:
+
 - ✅ Runs auth checks closer to data sources (more secure)
 - ✅ Avoids unnecessary checks on prefetched routes
 - ✅ Provides better TypeScript inference and error handling
@@ -263,12 +264,13 @@ import { verifySession } from '@/lib/dal';
 
 export async function protectedAction() {
   const { userId } = await verifySession(); // Throws if not authenticated
-  
+
   // Proceed with action...
 }
 ```
 
 **Benefits:**
+
 - Auth checks run only when pages/actions are actually accessed (not on prefetch)
 - `cache()` prevents duplicate auth queries within the same render pass
 - TypeScript knows `user` is defined after `verifySession()` returns

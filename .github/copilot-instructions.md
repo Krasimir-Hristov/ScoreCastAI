@@ -137,7 +137,7 @@ When responding to a task:
 | Supabase queries, database operations | @SupabaseExpert                          |
 | RLS policies, migrations              | @SupabaseExpert                          |
 | Authentication, login, sign up        | @AuthExpert                              |
-| User sessions, Data Access Layer     | @AuthExpert                              |
+| User sessions, Data Access Layer      | @AuthExpert                              |
 | Protected routes                      | @AuthExpert                              |
 | New page, layout, or component        | @FrontendExpert                          |
 | Dashboard UI, styling, Tailwind       | @FrontendExpert                          |
