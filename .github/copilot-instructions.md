@@ -1,6 +1,7 @@
 # ScoreCast AI — Copilot Workspace Instructions
 
 ## Global Rules (All Agents Must Follow)
+
 - Framework: **Next.js 16+** (App Router)
 - UI Library: **React 19** — use the `use()` hook for promise resolution; **no `useEffect`**
 - Styling: **Tailwind CSS v4** — configure exclusively via `@theme` directive in CSS; **no `tailwind.config.js`**
@@ -14,9 +15,11 @@
 ## Agent Roster
 
 ### @BackendExpert
+
 **Role:** Senior Engineer — API Orchestration & Server Actions
 
 **Responsibilities:**
+
 - Implement `src/proxy.ts` as the central server-side fetch orchestrator
 - Build the entire `src/lib/` folder:
   - `src/lib/odds.ts` — Odds API integration
@@ -33,9 +36,11 @@
 ---
 
 ### @FrontendExpert
+
 **Role:** UI/UX Specialist — Next.js 16 Dashboard
 
 **Responsibilities:**
+
 - Build and maintain `src/app/dashboard/` (page, layout, and all child components)
 - Consume promises passed from Server Actions using the React 19 `use()` hook — **never `useEffect` or `useState` for data fetching**
 - Style all components **exclusively with Tailwind v4 utility classes**; define custom tokens only via `@theme` in `src/app/globals.css`
@@ -53,9 +58,11 @@
 ---
 
 ### @QA_Auditor
+
 **Role:** Security & Logic Auditor — Code Review & Regression Testing
 
 **Responsibilities:**
+
 - Review every PR/change for the following checks:
   1. **150-line rule** — flag any file exceeding 150 lines and suggest a split strategy
   2. **API key exposure** — verify no `process.env.*KEY*` variables appear in files inside `src/app/` client components or `src/components/`
@@ -73,34 +80,35 @@
 ## Agent Handoff Convention
 
 When responding to a task:
+
 1. **State the lead agent** at the top: e.g., `@BackendExpert taking the lead.`
 2. If the task spans multiple agents, name the lead and list supporting agents.
 3. All code produced must comply with the Global Rules above.
 
 ### Quick Reference — Who Leads What
 
-| Task | Lead Agent |
-|------|-----------|
-| New API integration / Server Action | @BackendExpert |
-| `src/proxy.ts` or `src/lib/` changes | @BackendExpert |
-| New page, layout, or component | @FrontendExpert |
-| Dashboard UI, styling, Tailwind | @FrontendExpert |
-| Code review, security, 150-line audit | @QA_Auditor |
-| Bug in existing feature | @QA_Auditor (triage) → hands off to lead |
-| Environment variable handling | @BackendExpert + @QA_Auditor |
+| Task                                  | Lead Agent                               |
+| ------------------------------------- | ---------------------------------------- |
+| New API integration / Server Action   | @BackendExpert                           |
+| `src/proxy.ts` or `src/lib/` changes  | @BackendExpert                           |
+| New page, layout, or component        | @FrontendExpert                          |
+| Dashboard UI, styling, Tailwind       | @FrontendExpert                          |
+| Code review, security, 150-line audit | @QA_Auditor                              |
+| Bug in existing feature               | @QA_Auditor (triage) → hands off to lead |
+| Environment variable handling         | @BackendExpert + @QA_Auditor             |
 
 ---
 
 ## Project Stack Summary
 
-| Layer | Technology |
-|-------|-----------|
-| Framework | Next.js 16+ (App Router) |
-| Language | TypeScript (strict) |
-| UI Runtime | React 19 |
-| Styling | Tailwind CSS v4 (`@theme` only) |
-| UI Components | shadcn/ui |
-| Animations | Framer Motion |
-| AI Model | Gemini 2.5 Flash |
-| Data Sources | Odds API, Football API, Tavily |
-| Package Manager | npm |
+| Layer           | Technology                      |
+| --------------- | ------------------------------- |
+| Framework       | Next.js 16+ (App Router)        |
+| Language        | TypeScript (strict)             |
+| UI Runtime      | React 19                        |
+| Styling         | Tailwind CSS v4 (`@theme` only) |
+| UI Components   | shadcn/ui                       |
+| Animations      | Framer Motion                   |
+| AI Model        | Gemini 2.5 Flash                |
+| Data Sources    | Odds API, Football API, Tavily  |
+| Package Manager | npm                             |
