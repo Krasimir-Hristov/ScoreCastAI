@@ -1,0 +1,183 @@
+# ScoreCast AI — Implementation Plan
+
+> **How to use this plan:**
+>
+> - Steps are numbered sequentially
+> - Each step has a clear owner (agent), input, output, and verification
+> - Work through phases in order — each phase unlocks the next
+> - Mark steps as ✅ Done / ⏳ In Progress / ❌ Blocked as you go
+
+---
+
+## Status Legend
+
+| Symbol | Meaning     |
+| ------ | ----------- |
+| ⬜     | Not started |
+| ⏳     | In progress |
+| ✅     | Complete    |
+| ❌     | Blocked     |
+
+---
+
+## Phase 1 — Backend API Integration
+
+Agent: @BackendExpert
+
+> **Goal:** Implement all 4 external API integrations and wire them into the central proxy orchestrator.
+> **Unlocks:** Phase 4 (Dashboard needs real data from proxy)
+
+| #   | [ ] | File                  | Agent          | Description                                                                                                      |
+| --- | --- | --------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------- |
+| 1   | [X] | `src/lib/odds.ts`     | @BackendExpert | Implement Odds API — real fetch, Zod schema, `fetchOdds(sport, regions)`                                         |
+| 2   | [ ] | `src/lib/football.ts` | @BackendExpert | Implement Football API — real fetch, Zod schema, `fetchFixtures(date)`                                           |
+| 3   | [ ] | `src/lib/tavily.ts`   | @BackendExpert | Implement Tavily search — real fetch, Zod schema, `searchNews(query)`                                            |
+| 4   | [ ] | `src/lib/gemini.ts`   | @BackendExpert | Implement Gemini 2.5 Flash — JSON mode, `PredictionOutputSchema`, `generatePrediction(matchData, newsContext)`   |
+| 5   | [ ] | `src/proxy.ts`        | @BackendExpert | Wire all lib imports, implement `getMatchList()` and `getDeepDiveAnalysis(matchId)` using `Promise.allSettled()` |
+
+**Phase 1 complete when:** `src/proxy.ts` exports typed data from all 4 APIs without throwing on partial failure.
+
+---
+
+## Phase 2 — Database Schema & Migrations
+
+Agent: @SupabaseExpert
+
+> **Goal:** Create all Supabase tables, enable RLS, and generate TypeScript types.
+> **Unlocks:** Phase 3 (Auth needs schema), Phase 5 (User features need tables)
+> **Can run in parallel with:** Phase 3
+
+| #   | [ ] | File                    | Agent           | Description                                                                                                         |
+| --- | --- | ----------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------- |
+| 6   | [ ] | Supabase dashboard      | @SupabaseExpert | Create `predictions` table — `id`, `user_id`, `match_id`, `prediction_data` (JSONB), `created_at`                   |
+| 7   | [ ] | Supabase dashboard      | @SupabaseExpert | Create `favorites` table — `id`, `user_id`, `match_id`, `created_at` — unique constraint on (`user_id`, `match_id`) |
+| 8   | [ ] | Supabase dashboard      | @SupabaseExpert | Create `match_history` table — `id`, `user_id`, `match_id`, `viewed_at`                                             |
+| 9   | [ ] | Supabase dashboard      | @SupabaseExpert | Enable RLS on all 3 tables — add SELECT / INSERT / UPDATE / DELETE policies using `auth.uid() = user_id`            |
+| 10  | [ ] | `src/types/database.ts` | @SupabaseExpert | Generate TypeScript types via Supabase CLI — `npx supabase gen types typescript ...`                                |
+
+**Phase 2 complete when:** All 3 tables exist in Supabase with RLS enabled, and types file is generated.
+
+---
+
+## Phase 3 — Authentication
+
+Agent: @AuthExpert
+
+> **Goal:** Implement login, register, sign out, and Data Access Layer for route protection.
+> **Unlocks:** Phase 5 (User features require auth)
+> **Can run in parallel with:** Phase 2
+
+| #   | [ ] | File                               | Agent           | Description                                                                                                                         |
+| --- | --- | ---------------------------------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| 11  | [ ] | `src/lib/dal.ts`                   | @AuthExpert     | Create `verifySession()` wrapped in `cache()` — reads Supabase session, returns `{ isAuth, userId, user }` or redirects to `/login` |
+| 12  | [ ] | `src/actions/auth.ts`              | @AuthExpert     | Server Actions: `signUp(formData)`, `signIn(formData)`, `signOut()` — Zod validation, Supabase auth calls, redirect on success      |
+| 13  | [ ] | `src/app/(auth)/login/page.tsx`    | @FrontendExpert | Login form — email + password, `useActionState(signIn)`, display errors, link to register                                           |
+| 14  | [ ] | `src/app/(auth)/register/page.tsx` | @FrontendExpert | Register form — email + password, `useActionState(signUp)`, display errors, email confirmation notice                               |
+| 15  | [ ] | `src/app/auth/callback/route.ts`   | @AuthExpert     | Email confirmation callback — exchange code for session, redirect to `/dashboard`                                                   |
+
+**Phase 3 complete when:** User can sign up, receive confirmation email, sign in, and `verifySession()` correctly redirects unauthenticated users.
+
+---
+
+## Phase 4 — Dashboard UI (MVP)
+
+Agent: @FrontendExpert
+
+> **Goal:** Build the main dashboard showing today's matches with AI deep dive capability.
+> **Unlocks:** Phase 5 (extends dashboard with user features)
+> **Prerequisites:** Phase 1 complete
+
+| #   | [ ] | File                               | Agent           | Description                                                                                                                    |
+| --- | --- | ---------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| 16  | [ ] | `app/page.tsx`                     | @FrontendExpert | Replace default Next.js page — redirect to `/dashboard` or landing page with CTA                                               |
+| 17  | [ ] | `src/app/dashboard/layout.tsx`     | @FrontendExpert | Dashboard shell — nav header with logo, dark mode toggle, `children` outlet                                                    |
+| 18  | [ ] | `src/app/dashboard/loading.tsx`    | @FrontendExpert | Loading skeleton — 3-5 MatchCard skeletons with Tailwind pulse animation                                                       |
+| 19  | [ ] | `src/app/dashboard/error.tsx`      | @FrontendExpert | Error boundary — friendly message, "Try Again" button calling `reset()`                                                        |
+| 20  | [ ] | `src/app/dashboard/page.tsx`       | @FrontendExpert | Main page — calls `getMatchList()`, React 19 `use()` hook, `<Suspense>` wrapper, maps to `<MatchCard>`                         |
+| 21  | [ ] | `src/components/MatchCard.tsx`     | @FrontendExpert | Match card — teams, date, odds, "Deep Dive" button — shadcn/ui Card, under 150 lines                                           |
+| 22  | [ ] | `src/components/DeepDiveModal.tsx` | @FrontendExpert | AI analysis modal — calls `getDeepDiveAnalysis(matchId)`, displays news + prediction, Framer Motion slide-in, shadcn/ui Dialog |
+
+**Phase 4 complete when:** `/dashboard` loads real matches, "Deep Dive" opens modal with Gemini prediction.
+
+---
+
+## Phase 5 — User Features (Predictions, Favorites, History)
+
+Agent: @FrontendExpert + @SupabaseExpert
+
+> **Goal:** Allow signed-in users to save predictions, favorite matches, and view history.
+> **Prerequisites:** Phase 3 (Auth) + Phase 4 (Dashboard)
+
+| #   | [ ] | File                                 | Agent                             | Description                                                                                                              |
+| --- | --- | ------------------------------------ | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| 23  | [ ] | `src/actions/predictions.ts`         | @SupabaseExpert                   | Server Actions: `savePrediction(matchId, data)`, `getUserPredictions()`, `deletePrediction(id)` — uses `verifySession()` |
+| 24  | [ ] | `src/actions/favorites.ts`           | @SupabaseExpert                   | Server Actions: `addFavorite(matchId)`, `removeFavorite(matchId)`, `getUserFavorites()` — uses `verifySession()`         |
+| 25  | [ ] | `src/actions/history.ts`             | @SupabaseExpert                   | Server Actions: `trackMatchView(matchId)`, `getUserHistory()` — uses `verifySession()`                                   |
+| 26  | [ ] | `src/components/MatchCard.tsx`       | @FrontendExpert                   | Add favorite heart button — auth-gated, calls `addFavorite()`/`removeFavorite()`, optimistic UI update                   |
+| 27  | [ ] | `src/components/DeepDiveModal.tsx`   | @FrontendExpert                   | Add "Save My Prediction" button — auth-gated, calls `savePrediction()`, success toast notification                       |
+| 28  | [ ] | `src/app/dashboard/history/page.tsx` | @FrontendExpert + @SupabaseExpert | History page — calls `getUserHistory()` + `getUserPredictions()`, timeline layout, protected by `verifySession()`        |
+
+**Phase 5 complete when:** Signed-in users can favorite matches, save predictions, and view their history page.
+
+---
+
+## Phase 6 — Polish & Deployment
+
+Agent: @FrontendExpert + @QA_Auditor
+
+> **Goal:** Final QA pass, accessibility, responsive design, and production deployment.
+> **Prerequisites:** All previous phases
+
+| #   | [ ] | File                | Agent           | Description                                                                                           |
+| --- | --- | ------------------- | --------------- | ----------------------------------------------------------------------------------------------------- |
+| 29  | [ ] | various             | @FrontendExpert | Install & wire up shadcn/ui components — `button`, `card`, `dialog`, `toast`, `skeleton`              |
+| 30  | [ ] | `app/error.tsx`     | @FrontendExpert | Root error boundary — styled consistently with dashboard                                              |
+| 31  | [ ] | `app/not-found.tsx` | @FrontendExpert | 404 page — friendly message with link back to dashboard                                               |
+| 32  | [ ] | `app/layout.tsx`    | @FrontendExpert | Metadata & SEO — `generateMetadata()`, title, description, OG image, favicon                          |
+| 33  | [ ] | all pages           | @FrontendExpert | Responsive design audit — test 375px / 768px / 1920px, fix layout issues                              |
+| 34  | [ ] | entire codebase     | @QA_Auditor     | Full security audit — API keys server-only, RLS policies tested, no `any` types, all files <150 lines |
+| 35  | [ ] | Vercel              | -               | Deploy — connect GitHub repo, configure env vars, verify production build                             |
+
+**Phase 6 complete when:** Lighthouse scores >90 on all metrics, production URL live and tested end-to-end.
+
+---
+
+## File Count Summary
+
+| Phase                   | New Files                                                                          | Modified Files                   |
+| ----------------------- | ---------------------------------------------------------------------------------- | -------------------------------- |
+| Phase 1 — Backend APIs  | 4 (`football`, `tavily`, `gemini`, `proxy`)                                        | 1 (`odds.ts` ✅)                 |
+| Phase 2 — Database      | 1 (`database.ts`)                                                                  | Supabase dashboard               |
+| Phase 3 — Auth          | 4 (`dal`, `auth actions`, `login`, `register`, `callback`)                         | —                                |
+| Phase 4 — Dashboard     | 7 (`layout`, `loading`, `error`, `page`, `MatchCard`, `DeepDiveModal`, `app/page`) | —                                |
+| Phase 5 — User Features | 4 (`predictions`, `favorites`, `history actions`, `history page`)                  | 2 (`MatchCard`, `DeepDiveModal`) |
+| Phase 6 — Polish        | 3 (`error`, `not-found`, `metadata`)                                               | several                          |
+| **Total**               | **~23 files**                                                                      | **~5 files**                     |
+
+---
+
+## Dependency Graph
+
+```
+Phase 1 (APIs)
+    └─→ Phase 4 (Dashboard displays data)
+            └─→ Phase 5 (User features extend dashboard)
+
+Phase 2 (Database) ─┐
+                    ├─→ Phase 5 (User features need tables)
+Phase 3 (Auth)    ──┘
+
+Phase 6 (Deploy) — requires all phases complete
+```
+
+---
+
+## Quick Reference — Agent Ownership
+
+| Agent           | Owns                                                                                               |
+| --------------- | -------------------------------------------------------------------------------------------------- |
+| @BackendExpert  | `src/lib/odds.ts`, `src/lib/football.ts`, `src/lib/tavily.ts`, `src/lib/gemini.ts`, `src/proxy.ts` |
+| @SupabaseExpert | Database migrations, `src/types/database.ts`, all `src/actions/*.ts` DB operations                 |
+| @AuthExpert     | `src/lib/dal.ts`, `src/actions/auth.ts`, `src/app/auth/callback/route.ts`                          |
+| @FrontendExpert | All `src/app/**/page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`, all `src/components/*.tsx`    |
+| @QA_Auditor     | Final audit — reviews all files for security, 150-line limit, TypeScript compliance                |

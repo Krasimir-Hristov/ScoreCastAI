@@ -60,6 +60,23 @@ export function MatchCard({
 }
 ```
 
+Note: Tailwind v4 introduces canonical utility naming for many values. Prefer canonical utilities (for example, use `md:w-39.5` instead of `md:w-[158px]`) when an equivalent exists — this keeps classnames consistent with the new parser and avoids linter suggestions. Use arbitrary bracket values only when no canonical utility matches.
+
+Color opacity note: Tailwind v4 also provides canonical opacity-aware color utilities. Prefer `bg-black/4`, `border-black/8`, or `dark:border-white/14.5` instead of bracketed forms like `bg-black/[.04]` or `border-black/[.08]` when an equivalent exists. Use bracketed arbitrary values only if there's no canonical match.
+
+### Tailwind v4 Canonical Syntax — Examples & Guidance
+
+- Prefer canonical utilities when available: they are parsed by the new Tailwind v4 engine and keep classnames consistent. Examples:
+  - `md:w-39.5` instead of `md:w-[158px]`
+  - `bg-black/4` instead of `bg-black/[.04]`
+  - `border-black/8` instead of `border-black/[.08]`
+  - `dark:border-white/14.5` instead of `dark:border-white/[.145]`
+- Use fractional utilities where appropriate (e.g., `w-1/2`, `w-1/3`) instead of arbitrary pixel widths when the layout permits.
+- Reserve bracketed arbitrary values (`[...]`) only for truly custom values that have no canonical equivalent (rare). When you must use them, prefer precise units (e.g., `w-[123px]`) and add a short inline comment explaining why the canonical utility isn't suitable.
+- Update tooling: ensure Tailwind IntelliSense and linters are using Tailwind v4 rules so editors surface canonical suggestions and avoid noisy linter warnings.
+
+If you're unsure whether a canonical utility exists, search the Tailwind v4 docs or ask in the repo — the `@FrontendExpert` should convert obvious bracketed cases during routine audits.
+
 > **Never** create `tailwind.config.js` — Tailwind v4 reads `@theme` directly.
 
 ---
