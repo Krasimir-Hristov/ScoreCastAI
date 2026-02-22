@@ -110,14 +110,34 @@ export function MatchCard({
           </div>
         </CardHeader>
 
-        <CardContent className='relative space-y-3'>
-          <div className='grid gap-1'>
-            <div className='text-base font-semibold text-white/90'>
-              {fixture.teams.home.name}
-            </div>
-            <div className='text-[11px] text-muted-foreground'>vs</div>
-            <div className='text-base font-semibold text-white/90'>
-              {fixture.teams.away.name}
+        <CardContent className='relative space-y-3 px-4 pb-4'>
+          <div className='rounded-2xl border border-white/10 bg-linear-to-b from-primary/10 via-card/20 to-accent/10 p-4 text-center'>
+            <div className='grid gap-3'>
+              <div className='space-y-1'>
+                <div className='mx-auto w-fit rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary'>
+                  Home
+                </div>
+                <div className='text-lg font-semibold leading-tight text-white/95'>
+                  {fixture.teams.home.name}
+                </div>
+              </div>
+
+              <div className='mx-auto flex items-center justify-center gap-2 text-xs text-muted-foreground'>
+                <span className='h-px w-10 bg-white/10' />
+                <span className='rounded-full border border-white/10 bg-card/30 px-2 py-0.5 font-semibold uppercase tracking-wider text-white/70'>
+                  vs
+                </span>
+                <span className='h-px w-10 bg-white/10' />
+              </div>
+
+              <div className='space-y-1'>
+                <div className='mx-auto w-fit rounded-full border border-accent/20 bg-accent/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-accent'>
+                  Away
+                </div>
+                <div className='text-lg font-semibold leading-tight text-white/95'>
+                  {fixture.teams.away.name}
+                </div>
+              </div>
             </div>
           </div>
 
