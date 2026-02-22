@@ -1,14 +1,14 @@
 'use client';
 
 import { use, useState, Suspense } from 'react';
-import { toast } from 'sonner';
+import { ExternalLink, Newspaper, Sparkles } from 'lucide-react';
 
 import { generateMatchPrediction } from '@/lib/proxy';
 import type { NewsItem } from '@/lib/tavily';
 import type { PredictionOutput } from '@/lib/gemini';
 import { Button } from '@/components/ui/button';
 import { MatchPredictionCard } from '@/components/MatchPredictionCard';
-import { savePrediction } from '@/actions/predictions';
+import { SavePredictionButton } from '@/components/deepDive/SavePredictionButton';
 
 interface DeepDiveContentProps {
   newsPromise: Promise<NewsItem[]>;
@@ -16,74 +16,6 @@ interface DeepDiveContentProps {
   awayTeam: string;
   matchId: string;
   matchStatus: string;
-}
-
-function SavePredictionButton({
-  promise,
-  matchId,
-  homeTeam,
-  awayTeam,
-}: {
-  promise: Promise<PredictionOutput | null>;
-  matchId: string;
-  homeTeam: string;
-  awayTeam: string;
-}) {
-  const prediction = use(promise);
-  const [isSaving, setIsSaving] = useState(false);
-
-  if (!prediction) return null;
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      // Map PredictionOutput to PredictionData
-      const outcome =
-        prediction.winner === 'Home'
-          ? 'home'
-          : prediction.winner === 'Away'
-            ? 'away'
-            : 'draw';
-
-      const result = await savePrediction(
-        matchId,
-        {
-          outcome,
-          confidence: prediction.confidence as 'low' | 'medium' | 'high',
-          reasoning: prediction.reasoning,
-        },
-        {
-          homeTeam,
-          awayTeam,
-          matchDate: new Date().toISOString(), // Saving current time as approximation
-        },
-      );
-
-      if (result) {
-        toast.success('Prediction saved successfully!');
-      } else {
-        toast.error('Failed to save. Please sign in first.');
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error('An error occurred while saving.');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  return (
-    <div className='flex justify-end pt-2'>
-      <Button
-        size='sm'
-        variant='outline'
-        onClick={handleSave}
-        disabled={isSaving}
-      >
-        {isSaving ? 'Saving...' : 'Save Prediction'}
-      </Button>
-    </div>
-  );
 }
 
 export function DeepDiveContent({
@@ -112,14 +44,24 @@ export function DeepDiveContent({
   return (
     <div className='space-y-6'>
       <div className='flex items-center justify-between'>
-        <h3 className='text-base font-semibold'>Match Analysis</h3>
+        <h3 className='flex items-center gap-2 text-base font-semibold'>
+          <span className='grid h-8 w-8 place-items-center rounded-xl border border-white/10 bg-card/40'>
+            <Sparkles className='h-4 w-4 text-primary' />
+          </span>
+          <span>Match Analysis</span>
+        </h3>
         {isMatchFinished ? (
-          <div className='rounded-md bg-muted px-3 py-1.5 text-sm font-medium text-muted-foreground'>
+          <div className='rounded-full border border-white/10 bg-card/30 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
             Event Finished
           </div>
         ) : (
           !predictionPromise && (
-            <Button size='sm' onClick={handleGenerate}>
+            <Button
+              size='sm'
+              onClick={handleGenerate}
+              className='gap-2 bg-linear-to-r from-primary to-primary/80 text-primary-foreground shadow-sm shadow-black/40 hover:from-primary/90 hover:to-primary'
+            >
+              <Sparkles className='h-4 w-4' />
               Generate AI Prediction
             </Button>
           )
@@ -129,10 +71,10 @@ export function DeepDiveContent({
       {predictionPromise && (
         <Suspense
           fallback={
-            <div className='h-32 w-full animate-pulse rounded-xl bg-muted/50' />
+            <div className='h-32 w-full animate-pulse rounded-2xl border border-white/10 bg-card/30' />
           }
         >
-          <div className='space-y-4 rounded-xl border bg-card p-4'>
+          <div className='glass-card space-y-4 rounded-2xl p-4'>
             <MatchPredictionCard promise={predictionPromise} />
             <SavePredictionButton
               promise={predictionPromise}
@@ -145,7 +87,8 @@ export function DeepDiveContent({
       )}
 
       <div className='space-y-3'>
-        <h4 className='text-sm font-medium text-muted-foreground'>
+        <h4 className='flex items-center gap-2 text-sm font-medium text-muted-foreground'>
+          <Newspaper className='h-4 w-4 text-muted-foreground' />
           Latest News Context
         </h4>
         {news && news.length > 0 ? (
@@ -156,10 +99,13 @@ export function DeepDiveContent({
                 href={item.url}
                 target='_blank'
                 rel='noopener noreferrer'
-                className='block rounded-lg border bg-card/50 p-3 transition-colors hover:bg-accent/50'
+                className='glass-card group block rounded-2xl p-3 transition-colors hover:border-white/14 hover:bg-card/80'
               >
-                <div className='text-sm font-medium leading-snug hover:underline'>
-                  {item.title}
+                <div className='flex items-start justify-between gap-3'>
+                  <div className='text-sm font-medium leading-snug group-hover:underline'>
+                    {item.title}
+                  </div>
+                  <ExternalLink className='mt-0.5 h-4 w-4 shrink-0 text-muted-foreground/70 group-hover:text-foreground' />
                 </div>
                 {item.description && (
                   <p className='mt-1 line-clamp-2 text-xs text-muted-foreground/80'>

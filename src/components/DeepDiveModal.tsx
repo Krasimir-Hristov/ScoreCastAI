@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Zap } from 'lucide-react';
 
 import { getDeepDiveNews } from '@/lib/proxy';
 import type { NewsItem } from '@/lib/tavily';
@@ -50,14 +51,19 @@ export function DeepDiveModal({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
 
-      <DialogContent className='max-h-[85vh] overflow-y-auto sm:max-w-lg'>
+      <DialogContent className='glass-panel max-h-[85vh] overflow-y-auto sm:max-w-2xl'>
         <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.18 }}
+          initial={{ opacity: 0, y: 18, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.22, ease: 'easeOut' }}
         >
           <DialogHeader>
-            <DialogTitle>{title}</DialogTitle>
+            <DialogTitle className='flex items-center gap-2'>
+              <span className='grid h-8 w-8 place-items-center rounded-xl border border-white/10 bg-card/40'>
+                <Zap className='h-4 w-4 text-primary' />
+              </span>
+              <span className='min-w-0 truncate'>{title}</span>
+            </DialogTitle>
             <DialogDescription>
               Tavily news context + Gemini prediction.
             </DialogDescription>
@@ -73,7 +79,7 @@ export function DeepDiveModal({
                 matchStatus={matchStatus}
               />
             ) : (
-              <div className='rounded-xl border bg-card p-4 text-sm text-muted-foreground'>
+              <div className='glass-card rounded-xl p-4 text-sm text-muted-foreground'>
                 Loading...
               </div>
             )}

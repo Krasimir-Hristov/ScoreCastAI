@@ -35,14 +35,14 @@ export function PredictionCard({ prediction }: { prediction: Prediction }) {
   };
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className='glass-card overflow-hidden'>
+      <CardHeader className='border-b border-white/8 bg-card/20'>
         <div className='flex items-start justify-between gap-2'>
           <div className='flex-1'>
             <CardTitle className='text-base'>
               {home} vs {away}
             </CardTitle>
-            <p className='text-xs text-muted-foreground mt-1'>
+            <p className='mt-1 text-xs text-muted-foreground'>
               {prediction.match_date
                 ? new Date(prediction.match_date).toLocaleDateString()
                 : new Date(prediction.created_at).toLocaleDateString()}
@@ -53,7 +53,7 @@ export function PredictionCard({ prediction }: { prediction: Prediction }) {
             size='icon'
             onClick={handleDelete}
             disabled={isDeleting}
-            className='text-destructive hover:text-destructive'
+            className='h-9 w-9 rounded-xl border border-white/10 bg-card/20 text-destructive hover:bg-card/40 hover:text-destructive'
           >
             <Trash2 className='h-4 w-4' />
           </Button>
@@ -62,7 +62,7 @@ export function PredictionCard({ prediction }: { prediction: Prediction }) {
       <CardContent className='space-y-3'>
         <div className='flex items-center justify-between'>
           <span className='text-sm font-medium'>Prediction:</span>
-          <span className='text-sm capitalize'>
+          <span className='rounded-full border border-white/10 bg-card/30 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white/85'>
             {data.outcome === 'home'
               ? home
               : data.outcome === 'away'
@@ -73,7 +73,9 @@ export function PredictionCard({ prediction }: { prediction: Prediction }) {
 
         <div className='flex items-center justify-between'>
           <span className='text-sm font-medium'>Confidence:</span>
-          <span className='text-sm capitalize'>{data.confidence}</span>
+          <span className='rounded-full border border-white/10 bg-card/30 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
+            {data.confidence}
+          </span>
         </div>
 
         {data.reasoning && (

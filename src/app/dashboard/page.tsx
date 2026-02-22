@@ -7,12 +7,12 @@ import { LeagueMatchBrowser } from '@/components/LeagueMatchBrowser';
 function DashboardFallback() {
   return (
     <div className='space-y-4'>
-      <div className='h-8 w-56 animate-pulse rounded-md bg-muted' />
+      <div className='h-8 w-56 animate-pulse rounded-xl border border-white/10 bg-card/30' />
       <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
         {Array.from({ length: 6 }).map((_, idx) => (
           <div
             key={idx}
-            className='h-56 animate-pulse rounded-xl border bg-card'
+            className='h-56 animate-pulse rounded-2xl border border-white/10 bg-card/30'
           />
         ))}
       </div>

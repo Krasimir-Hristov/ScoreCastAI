@@ -1,10 +1,10 @@
 'use client';
 
 import { use, useMemo, useState } from 'react';
+import { ChevronDown, Filter } from 'lucide-react';
 
 import type { MatchListData } from '@/lib/proxy';
 import type { Odds } from '@/lib/odds';
-import type { Fixture } from '@/lib/football';
 import type { Favorite } from '@/actions/favorites';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,23 +15,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { MatchCard } from '@/components/MatchCard';
-
-type LeagueOption = { id: number; name: string; country: string };
-
-function teamKey(home: string, away: string) {
-  return `${home.toLowerCase()}__${away.toLowerCase()}`;
-}
-
-function bestOddsForFixture(
-  fixture: Fixture,
-  oddsMap: Map<string, Odds>,
-): Odds | null {
-  const home = fixture.teams.home.name;
-  const away = fixture.teams.away.name;
-  return (
-    oddsMap.get(teamKey(home, away)) ?? oddsMap.get(teamKey(away, home)) ?? null
-  );
-}
+import {
+  bestOddsForFixture,
+  teamKey,
+  type LeagueOption,
+} from '@/components/leagueMatchBrowser.utils';
 
 export function LeagueMatchBrowser({
   dataPromise,
@@ -102,7 +90,8 @@ export function LeagueMatchBrowser({
       <div className='flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between'>
         <div className='space-y-1'>
           <h1 className='text-2xl font-semibold tracking-tight'>
-            Today’s matches
+            <span className='gradient-text'>Today’s</span>{' '}
+            <span className='text-white/90'>matches</span>
           </h1>
           <p className='text-sm text-muted-foreground'>
             Pick a league to narrow down the list.
@@ -110,17 +99,23 @@ export function LeagueMatchBrowser({
         </div>
 
         <div className='flex items-center gap-3'>
-          <div className='text-sm text-muted-foreground'>
+          <div className='rounded-full border border-white/10 bg-card/30 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
             {fixtures.length} match{fixtures.length === 1 ? '' : 'es'}
           </div>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant='outline' size='sm'>
-                League: {selectedLabel} <span aria-hidden='true'>▾</span>
+              <Button
+                variant='outline'
+                size='sm'
+                className='gap-2 border-white/12 bg-card/20 hover:bg-card/40'
+              >
+                <Filter className='h-4 w-4 text-muted-foreground' />
+                League: {selectedLabel}
+                <ChevronDown className='h-4 w-4 text-muted-foreground' />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className='max-h-72 overflow-auto'>
+            <DropdownMenuContent className='glass-panel max-h-72 overflow-auto border-white/10'>
               <DropdownMenuItem onSelect={() => setSelectedLeagueId('all')}>
                 All leagues
               </DropdownMenuItem>
@@ -143,7 +138,7 @@ export function LeagueMatchBrowser({
       </div>
 
       {fixtures.length === 0 ? (
-        <div className='rounded-xl border bg-card p-6 text-sm text-muted-foreground'>
+        <div className='glass-card rounded-2xl p-6 text-sm text-muted-foreground'>
           No matches found for this league.
         </div>
       ) : (

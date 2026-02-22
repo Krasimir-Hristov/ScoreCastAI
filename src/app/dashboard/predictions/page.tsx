@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { getUserPredictions } from '@/actions/predictions';
 import { PredictionCard } from '@/components/PredictionCard';
+import { Target } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'My Predictions - ScoreCast AI',
@@ -12,8 +13,10 @@ export default function PredictionsPage() {
   return (
     <div className='flex flex-col gap-6'>
       <div className='space-y-1'>
-        <h1 className='text-2xl font-semibold tracking-tight'>
-          My Predictions
+        <h1 className='flex items-center gap-2 text-2xl font-semibold tracking-tight'>
+          <Target className='h-5 w-5 text-primary' />
+          <span className='gradient-text'>My</span>{' '}
+          <span className='text-white/90'>Predictions</span>
         </h1>
         <p className='text-sm text-muted-foreground'>
           AI predictions you&apos;ve generated and saved
@@ -32,7 +35,7 @@ async function PredictionsContent() {
 
   if (predictions.length === 0) {
     return (
-      <div className='flex flex-col items-center justify-center rounded-lg border border-dashed py-16'>
+      <div className='glass-card flex flex-col items-center justify-center rounded-2xl border-dashed py-16'>
         <div className='text-center'>
           <p className='text-lg font-medium'>No predictions yet</p>
           <p className='mt-2 text-sm text-muted-foreground'>
@@ -58,7 +61,7 @@ function PredictionsSkeleton() {
       {Array.from({ length: 6 }).map((_, idx) => (
         <div
           key={idx}
-          className='h-56 animate-pulse rounded-xl border bg-card'
+          className='h-56 animate-pulse rounded-2xl border border-white/10 bg-card/30'
         />
       ))}
     </div>
