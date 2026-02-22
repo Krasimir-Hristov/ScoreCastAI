@@ -8,8 +8,8 @@
  * Provides both server and browser clients for Postgres + Auth.
  *
  * Security contract:
- * - `SUPABASE_SECRET_KEY` is ONLY used in server-side contexts (bypasses RLS)
- * - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` is safe for browser (enforces RLS)
+ * - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` is used for both server and browser (enforces RLS)
+ * - No secret key is exposed — all queries respect Row Level Security
  * - Keep under 150 lines
  *
  * Dependencies:
@@ -32,7 +32,7 @@ import type { Database } from '@/types/database';
 
 /**
  * Creates a Supabase server client for use in Server Components and Server Actions.
- * Uses `SUPABASE_SECRET_KEY` which bypasses Row Level Security.
+ * Uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` which enforces Row Level Security.
  *
  * @returns A Supabase server client instance.
  */

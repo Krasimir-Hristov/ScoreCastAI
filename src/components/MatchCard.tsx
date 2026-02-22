@@ -1,13 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { Star } from 'lucide-react';
-import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 
 import type { Fixture } from '@/lib/football';
 import type { Odds } from '@/lib/odds';
-import { addFavorite, removeFavorite } from '@/actions/favorites';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -18,10 +14,8 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { DeepDiveModal } from '@/components/DeepDiveModal';
-import {
-  bestThreeWayPrices,
-  formatKickoff,
-} from '@/components/matchCard.utils';
+import { FavoriteButton } from '@/components/FavoriteButton';
+import { formatKickoff } from '@/components/matchCard.utils';
 import { MatchCardOdds } from './MatchCardOdds';
 
 export function MatchCard({
@@ -33,35 +27,9 @@ export function MatchCard({
   odds: Odds | null;
   isFavorite?: boolean;
 }) {
-  const [isFavorite, setIsFavorite] = useState(initialFavorite);
-  const [isLoading, setIsLoading] = useState(false);
   const matchId = String(fixture.fixture.id);
-
-  const toggleFavorite = async () => {
-    setIsLoading(true);
-    const nextState = !isFavorite;
-    setIsFavorite(nextState); // Optimistic
-
-    try {
-      const result = nextState
-        ? await addFavorite(matchId)
-        : await removeFavorite(matchId);
-
-      if (!result) throw new Error('Auth required');
-      toast.success(
-        nextState ? 'Added to favorites' : 'Removed from favorites',
-      );
-    } catch {
-      setIsFavorite(!nextState); // Rollback
-      toast.error('Sign in to manage favorites');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const kickoff = formatKickoff(fixture.fixture.date);
-  const prices = bestThreeWayPrices(odds);
-  // const prices = bestThreeWayPrices(odds); // Moved to MatchCardOdds
+
   return (
     <motion.div
       whileHover={{ y: -3 }}
@@ -93,21 +61,10 @@ export function MatchCard({
                 </span>
               </CardDescription>
             </div>
-            <Button
-              variant='ghost'
-              size='icon'
-              className='-mr-2 -mt-2 h-8 w-8 rounded-xl border border-white/10 bg-card/20 text-muted-foreground hover:bg-card/40 hover:text-accent'
-              onClick={toggleFavorite}
-              disabled={isLoading}
-            >
-              <Star
-                className={
-                  'h-4 w-4 transition-all ' +
-                  (isFavorite ? 'fill-accent text-accent' : '')
-                }
-              />
-              <span className='sr-only'>Toggle favorite</span>
-            </Button>
+            <FavoriteButton
+              matchId={matchId}
+              initialFavorite={initialFavorite}
+            />
           </div>
         </CardHeader>
 

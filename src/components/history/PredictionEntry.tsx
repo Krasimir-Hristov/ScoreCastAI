@@ -90,7 +90,7 @@ export function PredictionEntry({ item }: { item: Prediction }) {
           <div
             className={`rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-wider ${badgeClass}`}
           >
-            {outcome} Win
+            {outcome === 'draw' ? 'Draw' : `${outcome} Win`}
           </div>
           <p className='line-clamp-1 text-sm text-muted-foreground'>{reason}</p>
         </div>

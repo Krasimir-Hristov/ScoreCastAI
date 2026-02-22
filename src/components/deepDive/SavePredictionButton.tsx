@@ -28,9 +28,9 @@ export function SavePredictionButton({
     setIsSaving(true);
     try {
       const outcome =
-        prediction.winner === 'Home'
+        prediction.winner === homeTeam
           ? 'home'
-          : prediction.winner === 'Away'
+          : prediction.winner === awayTeam
             ? 'away'
             : 'draw';
 

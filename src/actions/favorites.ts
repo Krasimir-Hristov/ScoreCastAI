@@ -30,7 +30,7 @@ export async function addFavorite(matchId: string): Promise<Favorite | null> {
     .insert({
       user_id: userId,
       match_id: matchId,
-    } as any)
+    })
     .select()
     .single();
 
