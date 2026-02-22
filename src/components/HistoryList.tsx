@@ -1,8 +1,16 @@
 'use client';
 
+import { useState } from 'react';
 import { format, isToday, isYesterday } from 'date-fns';
-import { Eye, Trophy } from 'lucide-react';
+import { Eye, Trophy, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+
 import type { MatchHistory, Prediction } from '@/types/database';
+import { deleteHistoryEntry } from '@/actions/history-actions';
+import { deletePrediction } from '@/actions/predictions';
+import { Button } from '@/components/ui/button';
+import { DeepDiveModal } from '@/components/DeepDiveModal';
 
 interface HistoryListProps {
   historyItems: MatchHistory[];
@@ -74,8 +82,26 @@ export function HistoryList({ historyItems, predictions }: HistoryListProps) {
 }
 
 function HistoryEntry({ item }: { item: MatchHistory }) {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const router = useRouter();
   const home = item.home_team || 'Unknown';
   const away = item.away_team || 'Team';
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      const success = await deleteHistoryEntry(item.id);
+      if (success) {
+        toast.success('Removed from history');
+        router.refresh();
+      } else {
+        throw new Error('Delete failed');
+      }
+    } catch {
+      toast.error('Failed to delete');
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className='relative flex gap-4 pb-4 last:pb-0'>
@@ -85,22 +111,46 @@ function HistoryEntry({ item }: { item: MatchHistory }) {
       </div>
       <div className='flex-1 rounded-lg border bg-card p-4'>
         <div className='flex items-center justify-between'>
-          <div className='font-medium'>
-            {home} vs {away}
+          <div className='flex-1'>
+            <div className='font-medium'>
+              {home} vs {away}
+            </div>
+            <time className='text-xs text-muted-foreground'>
+              {format(new Date(item.viewed_at), 'h:mm a')}
+            </time>
           </div>
-          <time className='text-xs text-muted-foreground'>
-            {format(new Date(item.viewed_at), 'h:mm a')}
-          </time>
+          <div className='flex items-center gap-2'>
+            <DeepDiveModal
+              matchId={item.match_id}
+              homeTeam={home}
+              awayTeam={away}
+              matchStatus='Unknown'
+              title={`${home} vs ${away}`}
+              trigger={
+                <Button variant='outline' size='sm'>
+                  View
+                </Button>
+              }
+            />
+            <Button
+              variant='ghost'
+              size='icon'
+              className='h-7 w-7 text-destructive hover:text-destructive'
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              <Trash2 className='h-3.5 w-3.5' />
+            </Button>
+          </div>
         </div>
-        <p className='text-sm text-muted-foreground mt-1'>
-          Viewed match details
-        </p>
       </div>
     </div>
   );
 }
 
 function PredictionEntry({ item }: { item: Prediction }) {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const router = useRouter();
   const home = item.home_team || 'Unknown';
   const away = item.away_team || 'Team';
   const outcome = item.prediction_data.outcome;
@@ -114,6 +164,22 @@ function PredictionEntry({ item }: { item: Prediction }) {
 
   const badgeClass = outcomeColors[outcome] || 'bg-muted text-muted-foreground';
 
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      const success = await deletePrediction(item.id);
+      if (success) {
+        toast.success('Prediction deleted');
+        router.refresh();
+      } else {
+        throw new Error('Delete failed');
+      }
+    } catch {
+      toast.error('Failed to delete');
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className='relative flex gap-4 pb-4 last:pb-0'>
       <div className='absolute left-4.75 top-8 h-full w-px bg-border last:hidden' />
@@ -122,12 +188,37 @@ function PredictionEntry({ item }: { item: Prediction }) {
       </div>
       <div className='flex-1 rounded-lg border bg-card p-4'>
         <div className='flex items-center justify-between'>
-          <div className='font-medium'>
-            {home} vs {away}
+          <div className='flex-1'>
+            <div className='font-medium'>
+              {home} vs {away}
+            </div>
+            <time className='text-xs text-muted-foreground'>
+              {format(new Date(item.created_at), 'h:mm a')}
+            </time>
           </div>
-          <time className='text-xs text-muted-foreground'>
-            {format(new Date(item.created_at), 'h:mm a')}
-          </time>
+          <div className='flex items-center gap-2'>
+            <DeepDiveModal
+              matchId={item.match_id}
+              homeTeam={home}
+              awayTeam={away}
+              matchStatus='Unknown'
+              title={`${home} vs ${away}`}
+              trigger={
+                <Button variant='outline' size='sm'>
+                  View
+                </Button>
+              }
+            />
+            <Button
+              variant='ghost'
+              size='icon'
+              className='h-7 w-7 text-destructive hover:text-destructive'
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              <Trash2 className='h-3.5 w-3.5' />
+            </Button>
+          </div>
         </div>
         <div className='mt-2 flex items-start gap-2'>
           <div

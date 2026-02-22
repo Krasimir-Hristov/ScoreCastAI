@@ -91,3 +91,26 @@ export async function getUserHistory(): Promise<MatchHistory[]> {
 
   return data;
 }
+
+/**
+ * Delete a match history entry by ID
+ */
+export async function deleteHistoryEntry(historyId: string): Promise<boolean> {
+  const { isAuth, userId } = await verifySession();
+  if (!isAuth || !userId) return false;
+
+  const supabase = await createSupabaseServer();
+
+  const { error } = await supabase
+    .from('match_history')
+    .delete()
+    .eq('id', historyId)
+    .eq('user_id', userId); // Extra safety check
+
+  if (error) {
+    console.error('Error deleting history entry:', error);
+    return false;
+  }
+
+  return true;
+}
