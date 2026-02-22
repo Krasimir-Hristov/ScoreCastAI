@@ -33,7 +33,7 @@ Agent: @BackendExpert
 | 2   | [x] | `src/lib/football.ts` | @BackendExpert | Implement Football API — real fetch, Zod schema, `fetchFixtures(date)`                                           |
 | 3   | [x] | `src/lib/tavily.ts`   | @BackendExpert | Implement Tavily search — real fetch, Zod schema, `searchNews(query)`                                            |
 | 4   | [x] | `src/lib/gemini.ts`   | @BackendExpert | Implement Gemini 2.5 Flash — JSON mode, `PredictionOutputSchema`, `generatePrediction(matchData, newsContext)`   |
-| 5   | [ ] | `src/proxy.ts`        | @BackendExpert | Wire all lib imports, implement `getMatchList()` and `getDeepDiveAnalysis(matchId)` using `Promise.allSettled()` |
+| 5   | [x] | `src/proxy.ts`        | @BackendExpert | Wire all lib imports, implement `getMatchList()` and `getDeepDiveAnalysis(matchId)` using `Promise.allSettled()` |
 
 **Phase 1 complete when:** `src/proxy.ts` exports typed data from all 4 APIs without throwing on partial failure.
 

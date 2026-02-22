@@ -35,12 +35,9 @@ import { cookies } from 'next/headers';
  *
  * @returns A Supabase server client instance.
  */
-export function createSupabaseServer() {
-  const cookieStore = cookies();
+export async function createSupabaseServer() {
+  const cookieStore = await cookies();
 
-  // QA: 🔴 CRITICAL — Non-null assertions (!) without validation can cause runtime crashes
-  // QA: Add environment variable validation before client creation
-  // QA: Example: if (!process.env.NEXT_PUBLIC_SUPABASE_URL) throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL');
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SECRET_KEY!, // bypasses RLS
@@ -75,8 +72,6 @@ export function createSupabaseServer() {
  * @returns A Supabase browser client instance.
  */
 export function createSupabaseBrowser() {
-  // QA: 🔴 CRITICAL — Non-null assertions (!) without validation can cause runtime crashes
-  // QA: Add environment variable validation before client creation
   return createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!, // RLS enforced

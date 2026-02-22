@@ -77,7 +77,8 @@ export async function getDeepDiveAnalysis(
   // Extract match info from fixtures (would be keyed by matchId in real app)
   const fixtures = await fetchFixtures();
   const match = fixtures.find(
-    (f) => String(f.fixture.id) === matchId || f.fixture.id === Number(matchId),
+    (f: Fixture) =>
+      String(f.fixture.id) === matchId || f.fixture.id === Number(matchId),
   );
 
   if (!match) {
@@ -87,20 +88,26 @@ export async function getDeepDiveAnalysis(
   const homeTeam = match.teams.home.name;
   const awayTeam = match.teams.away.name;
 
-  // QA: 🟡 WARNING — recentNews is empty array; should pass news results to Gemini
-  // QA: Consider fetching news first, then passing results to generatePrediction()
-  const [newsResult, predictionResult] = await Promise.allSettled([
+  // Fetch news first
+  const newsResult = await Promise.allSettled([
     searchNews(`${homeTeam} vs ${awayTeam}`),
-    generatePrediction({
-      homeTeam,
-      awayTeam,
-      recentNews: [], // QA: Should be populated with actual news snippets
-    }),
   ]);
 
+  const news = newsResult[0].status === 'fulfilled' ? newsResult[0].value : [];
+  const newsSnippets: string[] = news
+    .map((n: NewsItem) => n.title || n.description || '')
+    .filter((text): text is string => Boolean(text))
+    .slice(0, 3);
+
+  // Generate prediction with news context
+  const predictionResult = await generatePrediction({
+    homeTeam,
+    awayTeam,
+    recentNews: newsSnippets,
+  });
+
   return {
-    news: newsResult.status === 'fulfilled' ? newsResult.value : null,
-    prediction:
-      predictionResult.status === 'fulfilled' ? predictionResult.value : null,
+    news: news.length > 0 ? news : null,
+    prediction: predictionResult,
   };
 }
