@@ -15,6 +15,7 @@ interface DeepDiveContentProps {
   homeTeam: string;
   awayTeam: string;
   matchId: string;
+  matchStatus: string;
 }
 
 function SavePredictionButton({
@@ -90,10 +91,17 @@ export function DeepDiveContent({
   homeTeam,
   awayTeam,
   matchId,
+  matchStatus,
 }: DeepDiveContentProps) {
   const news = use(newsPromise);
   const [predictionPromise, setPredictionPromise] =
     useState<Promise<PredictionOutput | null> | null>(null);
+
+  const isMatchFinished =
+    matchStatus.includes('Finished') ||
+    matchStatus.includes('FT') ||
+    matchStatus.includes('AET') ||
+    matchStatus.includes('PEN');
 
   const handleGenerate = () => {
     setPredictionPromise(
@@ -105,10 +113,16 @@ export function DeepDiveContent({
     <div className='space-y-6'>
       <div className='flex items-center justify-between'>
         <h3 className='text-base font-semibold'>Match Analysis</h3>
-        {!predictionPromise && (
-          <Button size='sm' onClick={handleGenerate}>
-            Generate AI Prediction
-          </Button>
+        {isMatchFinished ? (
+          <div className='rounded-md bg-muted px-3 py-1.5 text-sm font-medium text-muted-foreground'>
+            Event Finished
+          </div>
+        ) : (
+          !predictionPromise && (
+            <Button size='sm' onClick={handleGenerate}>
+              Generate AI Prediction
+            </Button>
+          )
         )}
       </div>
 

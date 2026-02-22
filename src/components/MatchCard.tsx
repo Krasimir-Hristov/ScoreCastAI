@@ -146,6 +146,7 @@ export function MatchCard({
           matchId={matchId}
           homeTeam={fixture.teams.home.name}
           awayTeam={fixture.teams.away.name}
+          matchStatus={fixture.fixture.status.long}
           title={`${fixture.teams.home.name} vs ${fixture.teams.away.name}`}
           trigger={<Button size='sm'>Deep dive</Button>}
         />

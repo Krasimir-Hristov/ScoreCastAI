@@ -7,19 +7,6 @@
 > - Work through phases in order — each phase unlocks the next
 > - Mark steps as ✅ Done / ⏳ In Progress / ❌ Blocked as you go
 
----
-
-## Status Legend
-
-| Symbol | Meaning     |
-| ------ | ----------- |
-| ⬜     | Not started |
-| ⏳     | In progress |
-| ✅     | Complete    |
-| ❌     | Blocked     |
-
----
-
 ## Phase 1 — Backend API Integration
 
 Agent: @BackendExpert

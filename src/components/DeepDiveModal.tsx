@@ -20,12 +20,14 @@ export function DeepDiveModal({
   matchId,
   homeTeam,
   awayTeam,
+  matchStatus,
   title,
   trigger,
 }: {
   matchId: string;
   homeTeam: string;
   awayTeam: string;
+  matchStatus: string;
   title: string;
   trigger: React.ReactNode;
 }) {
@@ -68,6 +70,7 @@ export function DeepDiveModal({
                 homeTeam={homeTeam}
                 awayTeam={awayTeam}
                 matchId={matchId}
+                matchStatus={matchStatus}
               />
             ) : (
               <div className='rounded-xl border bg-card p-4 text-sm text-muted-foreground'>
