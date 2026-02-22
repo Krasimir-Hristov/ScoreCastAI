@@ -41,7 +41,7 @@ export async function createSupabaseServer() {
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SECRET_KEY!, // bypasses RLS
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!, // enforces RLS
     {
       cookies: {
         get(name: string) {

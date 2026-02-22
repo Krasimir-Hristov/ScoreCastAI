@@ -27,11 +27,10 @@ export async function addFavorite(matchId: string): Promise<Favorite | null> {
 
   const { data, error } = await supabase
     .from('favorites')
-    // @ts-expect-error - Types mismatch with manual Database definition but runtime is correct
     .insert({
       user_id: userId,
       match_id: matchId,
-    })
+    } as any)
     .select()
     .single();
 

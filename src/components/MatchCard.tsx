@@ -22,6 +22,7 @@ import {
   bestThreeWayPrices,
   formatKickoff,
 } from '@/components/matchCard.utils';
+import { MatchCardOdds } from './MatchCardOdds';
 
 export function MatchCard({
   fixture,
@@ -60,7 +61,7 @@ export function MatchCard({
 
   const kickoff = formatKickoff(fixture.fixture.date);
   const prices = bestThreeWayPrices(odds);
-
+  // const prices = bestThreeWayPrices(odds); // Moved to MatchCardOdds
   return (
     <motion.div
       whileHover={{ y: -3 }}
@@ -142,21 +143,7 @@ export function MatchCard({
           </div>
 
           <div className='pt-1 text-xs text-muted-foreground'>
-            {prices ? (
-              <div className='flex flex-wrap gap-2'>
-                <span className='rounded-lg border border-white/8 bg-card/30 px-2 py-1'>
-                  H: <span className='text-white/90'>{prices.home ?? '—'}</span>
-                </span>
-                <span className='rounded-lg border border-white/8 bg-card/30 px-2 py-1'>
-                  D: <span className='text-white/90'>{prices.draw ?? '—'}</span>
-                </span>
-                <span className='rounded-lg border border-white/8 bg-card/30 px-2 py-1'>
-                  A: <span className='text-white/90'>{prices.away ?? '—'}</span>
-                </span>
-              </div>
-            ) : (
-              <span>Odds unavailable</span>
-            )}
+            <MatchCardOdds odds={odds} />
           </div>
         </CardContent>
 

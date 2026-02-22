@@ -39,10 +39,22 @@ export default function HistoryPage() {
 
 async function HistoryContent() {
   // Parallel data fetching
-  const [historyItems, predictions] = await Promise.all([
+  const [historyResult, predictionsResult] = await Promise.allSettled([
     getUserHistory(),
     getUserPredictions(),
   ]);
+
+  const historyItems =
+    historyResult.status === 'fulfilled' ? historyResult.value : [];
+  const predictions =
+    predictionsResult.status === 'fulfilled' ? predictionsResult.value : [];
+
+  if (historyResult.status === 'rejected') {
+    console.error('Failed to fetch history:', historyResult.reason);
+  }
+  if (predictionsResult.status === 'rejected') {
+    console.error('Failed to fetch predictions:', predictionsResult.reason);
+  }
 
   return <HistoryList historyItems={historyItems} predictions={predictions} />;
 }

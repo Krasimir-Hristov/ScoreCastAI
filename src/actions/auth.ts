@@ -5,8 +5,8 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
 const AuthFormSchema = z.object({
-  email: z.string().email('Невалиден email адрес'),
-  password: z.string().min(8, 'Паролата трябва да е поне 8 символа'),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
 export type AuthActionState = {

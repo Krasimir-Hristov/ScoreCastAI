@@ -85,6 +85,11 @@ export async function fetchFixtures(date?: string): Promise<Fixture[]> {
     }
 
     const json = await response.json();
+
+    if (json.errors && Object.keys(json.errors).length > 0) {
+      console.error('[football] API returned errors:', json.errors);
+    }
+
     const parsed = z.array(FixtureSchema).safeParse(json.response);
 
     if (!parsed.success) {

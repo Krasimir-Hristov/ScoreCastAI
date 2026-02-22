@@ -34,14 +34,12 @@ export async function trackMatchView(
     // Update existing record
     const { error } = await supabase
       .from('match_history')
-      // @ts-expect-error - Types mismatch with manual Database definition but runtime is correct
       .update({
         viewed_at: new Date().toISOString(),
         ...(metadata?.homeTeam ? { home_team: metadata.homeTeam } : {}),
         ...(metadata?.awayTeam ? { away_team: metadata.awayTeam } : {}),
         ...(metadata?.matchDate ? { match_date: metadata.matchDate } : {}),
       })
-      // @ts-expect-error - Types mismatch with manual Database definition but runtime is correct
       .eq('id', existing.id);
 
     if (error) {
@@ -50,7 +48,6 @@ export async function trackMatchView(
     }
   } else {
     // Create new record
-    // @ts-expect-error - Types mismatch with manual Database definition but runtime is correct
     const { error } = await supabase.from('match_history').insert({
       user_id: userId,
       match_id: matchId,

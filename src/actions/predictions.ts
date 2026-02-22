@@ -27,7 +27,6 @@ export async function savePrediction(
 
   const { data, error } = await supabase
     .from('predictions')
-    // @ts-expect-error - Types mismatch with manual Database definition but runtime is correct
     .insert({
       user_id: userId,
       match_id: matchId,

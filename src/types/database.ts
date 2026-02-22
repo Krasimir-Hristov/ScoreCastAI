@@ -46,6 +46,13 @@ export interface Database {
           prediction_data?: PredictionData;
           created_at?: string;
         };
+        Relationships: {
+          foreignKeyName: string;
+          columns: string[];
+          isOneToOne: boolean;
+          referencedRelation: string;
+          referencedColumns: string[];
+        }[];
       };
       favorites: {
         Row: {
@@ -66,6 +73,13 @@ export interface Database {
           match_id?: string;
           created_at?: string;
         };
+        Relationships: {
+          foreignKeyName: string;
+          columns: string[];
+          isOneToOne: boolean;
+          referencedRelation: string;
+          referencedColumns: string[];
+        }[];
       };
       match_history: {
         Row: {
@@ -95,6 +109,13 @@ export interface Database {
           match_date?: string | null;
           viewed_at?: string;
         };
+        Relationships: {
+          foreignKeyName: string;
+          columns: string[];
+          isOneToOne: boolean;
+          referencedRelation: string;
+          referencedColumns: string[];
+        }[];
       };
     };
     Views: {

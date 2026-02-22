@@ -62,6 +62,8 @@ CREATE POLICY "Users can select own history"
   ON match_history FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert own history"
   ON match_history FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own history"
+  ON match_history FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can delete own history"
   ON match_history FOR DELETE USING (auth.uid() = user_id);
 

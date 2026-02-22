@@ -1,3 +1,4 @@
+// QA: @BackendExpert — This file is a stale duplicate of src/lib/proxy.ts. Missing 'use server' directive, missing league filter, has dead default export. DELETE this file.
 /**
  * @file src/proxy.ts
  *
