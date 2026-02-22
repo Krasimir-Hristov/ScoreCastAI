@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { deletePrediction } from '@/actions/predictions';
 import type { Prediction } from '@/types/database';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 
 export function PredictionCard({ prediction }: { prediction: Prediction }) {
@@ -44,8 +45,8 @@ export function PredictionCard({ prediction }: { prediction: Prediction }) {
             </CardTitle>
             <p className='mt-1 text-xs text-muted-foreground'>
               {prediction.match_date
-                ? new Date(prediction.match_date).toLocaleDateString()
-                : new Date(prediction.created_at).toLocaleDateString()}
+                ? format(new Date(prediction.match_date), 'PPP')
+                : format(new Date(prediction.created_at), 'PPP')}
             </p>
           </div>
           <Button
