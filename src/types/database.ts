@@ -1,0 +1,113 @@
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[];
+
+export interface PredictionData {
+  outcome: 'home' | 'draw' | 'away';
+  confidence: 'low' | 'medium' | 'high';
+  reasoning: string;
+}
+
+export interface Database {
+  public: {
+    Tables: {
+      predictions: {
+        Row: {
+          id: string;
+          user_id: string;
+          match_id: string;
+          prediction_data: PredictionData;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          match_id: string;
+          prediction_data: PredictionData;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          match_id?: string;
+          prediction_data?: PredictionData;
+          created_at?: string;
+        };
+      };
+      favorites: {
+        Row: {
+          id: string;
+          user_id: string;
+          match_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          match_id: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          match_id?: string;
+          created_at?: string;
+        };
+      };
+      match_history: {
+        Row: {
+          id: string;
+          user_id: string;
+          match_id: string;
+          viewed_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          match_id: string;
+          viewed_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          match_id?: string;
+          viewed_at?: string;
+        };
+      };
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      [_ in never]: never;
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
+  };
+}
+
+export type Prediction = Database['public']['Tables']['predictions']['Row'];
+export type PredictionInsert =
+  Database['public']['Tables']['predictions']['Insert'];
+export type PredictionUpdate =
+  Database['public']['Tables']['predictions']['Update'];
+
+export type Favorite = Database['public']['Tables']['favorites']['Row'];
+export type FavoriteInsert =
+  Database['public']['Tables']['favorites']['Insert'];
+export type FavoriteUpdate =
+  Database['public']['Tables']['favorites']['Update'];
+
+export type MatchHistory = Database['public']['Tables']['match_history']['Row'];
+export type MatchHistoryInsert =
+  Database['public']['Tables']['match_history']['Insert'];
+export type MatchHistoryUpdate =
+  Database['public']['Tables']['match_history']['Update'];

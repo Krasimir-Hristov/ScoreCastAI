@@ -33,9 +33,9 @@ Agent: @BackendExpert
 | 2   | [x] | `src/lib/football.ts` | @BackendExpert | Implement Football API — real fetch, Zod schema, `fetchFixtures(date)`                                           |
 | 3   | [x] | `src/lib/tavily.ts`   | @BackendExpert | Implement Tavily search — real fetch, Zod schema, `searchNews(query)`                                            |
 | 4   | [x] | `src/lib/gemini.ts`   | @BackendExpert | Implement Gemini 2.5 Flash — JSON mode, `PredictionOutputSchema`, `generatePrediction(matchData, newsContext)`   |
-| 5   | [x] | `src/proxy.ts`        | @BackendExpert | Wire all lib imports, implement `getMatchList()` and `getDeepDiveAnalysis(matchId)` using `Promise.allSettled()` |
+| 5   | [x] | `src/lib/proxy.ts`    | @BackendExpert | Wire all lib imports, implement `getMatchList()` and `getDeepDiveAnalysis(matchId)` using `Promise.allSettled()` |
 
-**Phase 1 complete when:** `src/proxy.ts` exports typed data from all 4 APIs without throwing on partial failure.
+**Phase 1 complete when:** `src/lib/proxy.ts` exports typed data from all 4 APIs without throwing on partial failure.
 
 ---
 
@@ -47,13 +47,13 @@ Agent: @SupabaseExpert
 > **Unlocks:** Phase 3 (Auth needs schema), Phase 5 (User features need tables)
 > **Can run in parallel with:** Phase 3
 
-| #   | [ ] | File                    | Agent           | Description                                                                                                         |
+| #   | [x] | File                    | Agent           | Description                                                                                                         |
 | --- | --- | ----------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------- |
-| 6   | [ ] | Supabase dashboard      | @SupabaseExpert | Create `predictions` table — `id`, `user_id`, `match_id`, `prediction_data` (JSONB), `created_at`                   |
-| 7   | [ ] | Supabase dashboard      | @SupabaseExpert | Create `favorites` table — `id`, `user_id`, `match_id`, `created_at` — unique constraint on (`user_id`, `match_id`) |
-| 8   | [ ] | Supabase dashboard      | @SupabaseExpert | Create `match_history` table — `id`, `user_id`, `match_id`, `viewed_at`                                             |
-| 9   | [ ] | Supabase dashboard      | @SupabaseExpert | Enable RLS on all 3 tables — add SELECT / INSERT / UPDATE / DELETE policies using `auth.uid() = user_id`            |
-| 10  | [ ] | `src/types/database.ts` | @SupabaseExpert | Generate TypeScript types via Supabase CLI — `npx supabase gen types typescript ...`                                |
+| 6   | [x] | Supabase dashboard      | @SupabaseExpert | Create `predictions` table — `id`, `user_id`, `match_id`, `prediction_data` (JSONB), `created_at`                   |
+| 7   | [x] | Supabase dashboard      | @SupabaseExpert | Create `favorites` table — `id`, `user_id`, `match_id`, `created_at` — unique constraint on (`user_id`, `match_id`) |
+| 8   | [x] | Supabase dashboard      | @SupabaseExpert | Create `match_history` table — `id`, `user_id`, `match_id`, `viewed_at`                                             |
+| 9   | [x] | Supabase dashboard      | @SupabaseExpert | Enable RLS on all 3 tables — add SELECT / INSERT / UPDATE / DELETE policies using `auth.uid() = user_id`            |
+| 10  | [x] | `src/types/database.ts` | @SupabaseExpert | Generate TypeScript types via Supabase CLI — `npx supabase gen types typescript ...`                                |
 
 **Phase 2 complete when:** All 3 tables exist in Supabase with RLS enabled, and types file is generated.
 
@@ -144,15 +144,15 @@ Agent: @FrontendExpert + @QA_Auditor
 
 ## File Count Summary
 
-| Phase                   | New Files                                                                          | Modified Files                   |
-| ----------------------- | ---------------------------------------------------------------------------------- | -------------------------------- |
-| Phase 1 — Backend APIs  | 4 (`football`, `tavily`, `gemini`, `proxy`)                                        | 1 (`odds.ts` ✅)                 |
-| Phase 2 — Database      | 1 (`database.ts`)                                                                  | Supabase dashboard               |
-| Phase 3 — Auth          | 4 (`dal`, `auth actions`, `login`, `register`, `callback`)                         | —                                |
-| Phase 4 — Dashboard     | 7 (`layout`, `loading`, `error`, `page`, `MatchCard`, `DeepDiveModal`, `app/page`) | —                                |
-| Phase 5 — User Features | 4 (`predictions`, `favorites`, `history actions`, `history page`)                  | 2 (`MatchCard`, `DeepDiveModal`) |
-| Phase 6 — Polish        | 3 (`error`, `not-found`, `metadata`)                                               | several                          |
-| **Total**               | **~23 files**                                                                      | **~5 files**                     |
+| Phase                   | New Files                                                                          | Modified Files                    |
+| ----------------------- | ---------------------------------------------------------------------------------- | --------------------------------- |
+| Phase 1 — Backend APIs  | 4 (`football`, `tavily`, `gemini`, `lib/proxy`)                                    | 1 (`odds.ts` ✅)                  |
+| Phase 2 — Database      | 1 (`database.ts`)                                                                  | Supabase dashboard, `supabase.ts` |
+| Phase 3 — Auth          | 4 (`dal`, `auth actions`, `login`, `register`, `callback`)                         | —                                 |
+| Phase 4 — Dashboard     | 7 (`layout`, `loading`, `error`, `page`, `MatchCard`, `DeepDiveModal`, `app/page`) | —                                 |
+| Phase 5 — User Features | 4 (`predictions`, `favorites`, `history actions`, `history page`)                  | 2 (`MatchCard`, `DeepDiveModal`)  |
+| Phase 6 — Polish        | 3 (`error`, `not-found`, `metadata`)                                               | several                           |
+| **Total**               | **~23 files**                                                                      | **~5 files**                      |
 
 ---
 
@@ -174,10 +174,10 @@ Phase 6 (Deploy) — requires all phases complete
 
 ## Quick Reference — Agent Ownership
 
-| Agent           | Owns                                                                                               |
-| --------------- | -------------------------------------------------------------------------------------------------- |
-| @BackendExpert  | `src/lib/odds.ts`, `src/lib/football.ts`, `src/lib/tavily.ts`, `src/lib/gemini.ts`, `src/proxy.ts` |
-| @SupabaseExpert | Database migrations, `src/types/database.ts`, all `src/actions/*.ts` DB operations                 |
-| @AuthExpert     | `src/lib/dal.ts`, `src/actions/auth.ts`, `src/app/auth/callback/route.ts`                          |
-| @FrontendExpert | All `src/app/**/page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`, all `src/components/*.tsx`    |
-| @QA_Auditor     | Final audit — reviews all files for security, 150-line limit, TypeScript compliance                |
+| Agent           | Owns                                                                                                   |
+| --------------- | ------------------------------------------------------------------------------------------------------ |
+| @BackendExpert  | `src/lib/odds.ts`, `src/lib/football.ts`, `src/lib/tavily.ts`, `src/lib/gemini.ts`, `src/lib/proxy.ts` |
+| @SupabaseExpert | Database migrations, `src/types/database.ts`, all `src/actions/*.ts` DB operations                     |
+| @AuthExpert     | `src/lib/dal.ts`, `src/actions/auth.ts`, `src/app/auth/callback/route.ts`                              |
+| @FrontendExpert | All `src/app/**/page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`, all `src/components/*.tsx`        |
+| @QA_Auditor     | Final audit — reviews all files for security, 150-line limit, TypeScript compliance                    |

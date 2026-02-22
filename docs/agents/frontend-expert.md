@@ -18,7 +18,7 @@
 
 ```tsx
 // Server Component (page.tsx) — passes promise down
-import { getDashboardData } from '@/proxy';
+import { getDashboardData } from '@/lib/proxy';
 
 export default function DashboardPage() {
   const dataPromise = getDashboardData('match-123'); // NOT awaited
@@ -148,7 +148,7 @@ If you're unsure whether a canonical utility exists, search the Tailwind v4 docs
 ```tsx
 'use client';
 import { useState } from 'react';
-import { getDeepDiveAnalysis } from '@/proxy';
+import { getDeepDiveAnalysis } from '@/lib/proxy';
 
 export function DeepDiveButton({ matchId }: { matchId: string }) {
   const [analysisPromise, setAnalysisPromise] = useState<Promise<any> | null>(

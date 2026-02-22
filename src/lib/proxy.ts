@@ -1,5 +1,5 @@
 /**
- * @file src/proxy.ts
+ * @file src/lib/proxy.ts
  *
  * @description
  * **Executable Skill — @BackendExpert**
@@ -17,15 +17,15 @@
  *
  * @example
  * // Flow A — Server Component (dashboard page load)
- * import { getMatchList } from '@/proxy';
+ * import { getMatchList } from '@/lib/proxy';
  * const matchesPromise = getMatchList();
  *
  * // Flow B — Client Component (Deep Dive button)
- * import { getDeepDiveAnalysis } from '@/proxy';
+ * import { getDeepDiveAnalysis } from '@/lib/proxy';
  * const analysisPromise = getDeepDiveAnalysis('match-123');
  */
 
-export default function proxy() {}
+'use server';
 
 import { fetchOdds } from '@/lib/odds';
 import { fetchFixtures } from '@/lib/football';

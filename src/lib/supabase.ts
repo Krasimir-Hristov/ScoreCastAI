@@ -28,6 +28,7 @@
 
 import { createServerClient, createBrowserClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import type { Database } from '@/types/database';
 
 /**
  * Creates a Supabase server client for use in Server Components and Server Actions.
@@ -38,7 +39,7 @@ import { cookies } from 'next/headers';
 export async function createSupabaseServer() {
   const cookieStore = await cookies();
 
-  return createServerClient(
+  return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SECRET_KEY!, // bypasses RLS
     {
@@ -72,7 +73,7 @@ export async function createSupabaseServer() {
  * @returns A Supabase browser client instance.
  */
 export function createSupabaseBrowser() {
-  return createBrowserClient(
+  return createBrowserClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!, // RLS enforced
   );
