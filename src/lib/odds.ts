@@ -22,18 +22,39 @@
 
 import { z } from 'zod';
 
-// TODO (@BackendExpert): Define proper Zod schema based on Odds API response
+// Zod schema for odds response from The Odds API
 const OddsSchema = z.object({
-  matchId: z.string(),
-  homeOdds: z.number(),
-  drawOdds: z.number(),
-  awayOdds: z.number(),
+  id: z.string(),
+  sport_key: z.string(),
+  sport_title: z.string(),
+  commence_time: z.string().datetime(),
+  home_team: z.string(),
+  away_team: z.string(),
+  bookmakers: z
+    .array(
+      z.object({
+        key: z.string(),
+        markets: z.array(
+          z.object({
+            key: z.string(),
+            outcomes: z.array(
+              z.object({
+                name: z.string(),
+                price: z.number(),
+              }),
+            ),
+          }),
+        ),
+      }),
+    )
+    .optional(),
 });
 
 export type Odds = z.infer<typeof OddsSchema>;
 
 /**
  * Fetches betting odds for all today's matches.
+ * Uses The Odds API for real-time odds data.
  *
  * @returns A promise resolving to an array of odds objects.
  */
@@ -45,14 +66,29 @@ export async function fetchOdds(): Promise<Odds[]> {
     return [];
   }
 
-  // TODO (@BackendExpert): Replace stub with real Odds API call
-  // const response = await fetch(`https://api.the-odds-api.com/v4/...`, {
-  //   headers: { 'x-api-key': apiKey },
-  // });
-  // const json = await response.json();
-  // const parsed = z.array(OddsSchema).safeParse(json);
-  // return parsed.success ? parsed.data : [];
+  try {
+    // QA: 🟢 INFO — Hardcoded to Premier League (soccer_epl)
+    // QA: Future: Make sport_key configurable for multi-league support
+    const response = await fetch(
+      'https://api.the-odds-api.com/v4/sports/soccer_epl/odds',
+      {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+        },
+      },
+    );
 
-  // Stub — remove once API is wired up
-  return [];
+    if (!response.ok) {
+      console.error(`[odds] API error: ${response.status}`);
+      return [];
+    }
+
+    const json = await response.json();
+    const parsed = z.array(OddsSchema).safeParse(json.data || []);
+
+    return parsed.success ? parsed.data : [];
+  } catch (error) {
+    console.error('[odds] fetch error:', error);
+    return [];
+  }
 }

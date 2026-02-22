@@ -27,20 +27,23 @@
 
 'use server';
 
-// TODO (@BackendExpert): Import and wire up lib modules once implemented
-// import { fetchOdds }         from '@/lib/odds';
-// import { fetchFixtures }     from '@/lib/football';
-// import { searchNews }        from '@/lib/tavily';
-// import { generatePrediction } from '@/lib/gemini';
+import { fetchOdds } from '@/lib/odds';
+import { fetchFixtures } from '@/lib/football';
+import { searchNews } from '@/lib/tavily';
+import { generatePrediction } from '@/lib/gemini';
+import type { Odds } from '@/lib/odds';
+import type { Fixture } from '@/lib/football';
+import type { NewsItem } from '@/lib/tavily';
+import type { PredictionOutput } from '@/lib/gemini';
 
 export interface MatchListData {
-  fixtures: unknown[];
-  odds: unknown[];
+  fixtures: Fixture[];
+  odds: Odds[];
 }
 
 export interface DeepDiveData {
-  news: unknown | null;
-  prediction: unknown | null;
+  news: NewsItem[] | null;
+  prediction: PredictionOutput | null;
 }
 
 /**
@@ -50,15 +53,14 @@ export interface DeepDiveData {
  * @returns A promise resolving to fixtures + odds arrays.
  */
 export async function getMatchList(): Promise<MatchListData> {
-  // TODO (@BackendExpert): Replace stubs with real lib calls
-  const [fixtures, odds] = await Promise.allSettled([
-    Promise.resolve([]), // fetchFixtures()
-    Promise.resolve([]), // fetchOdds()
+  const [fixturesResult, oddsResult] = await Promise.allSettled([
+    fetchFixtures(),
+    fetchOdds(),
   ]);
 
   return {
-    fixtures: fixtures.status === 'fulfilled' ? fixtures.value : [],
-    odds: odds.status === 'fulfilled' ? odds.value : [],
+    fixtures: fixturesResult.status === 'fulfilled' ? fixturesResult.value : [],
+    odds: oddsResult.status === 'fulfilled' ? oddsResult.value : [],
   };
 }
 
@@ -72,14 +74,33 @@ export async function getMatchList(): Promise<MatchListData> {
 export async function getDeepDiveAnalysis(
   matchId: string,
 ): Promise<DeepDiveData> {
-  // TODO (@BackendExpert): Replace stubs with real lib calls
-  const [news, prediction] = await Promise.allSettled([
-    Promise.resolve(null), // searchNews(matchId)
-    Promise.resolve(null), // generatePrediction(matchId)
+  // Extract match info from fixtures (would be keyed by matchId in real app)
+  const fixtures = await fetchFixtures();
+  const match = fixtures.find(
+    (f) => String(f.fixture.id) === matchId || f.fixture.id === Number(matchId),
+  );
+
+  if (!match) {
+    return { news: null, prediction: null };
+  }
+
+  const homeTeam = match.teams.home.name;
+  const awayTeam = match.teams.away.name;
+
+  // QA: 🟡 WARNING — recentNews is empty array; should pass news results to Gemini
+  // QA: Consider fetching news first, then passing results to generatePrediction()
+  const [newsResult, predictionResult] = await Promise.allSettled([
+    searchNews(`${homeTeam} vs ${awayTeam}`),
+    generatePrediction({
+      homeTeam,
+      awayTeam,
+      recentNews: [], // QA: Should be populated with actual news snippets
+    }),
   ]);
 
   return {
-    news: news.status === 'fulfilled' ? news.value : null,
-    prediction: prediction.status === 'fulfilled' ? prediction.value : null,
+    news: newsResult.status === 'fulfilled' ? newsResult.value : null,
+    prediction:
+      predictionResult.status === 'fulfilled' ? predictionResult.value : null,
   };
 }

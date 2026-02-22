@@ -22,22 +22,43 @@
 
 import { z } from 'zod';
 
-// TODO (@BackendExpert): Define proper Zod schema based on Football API response
+// Zod schema for fixture response from API Football
 const FixtureSchema = z.object({
-  id: z.string(),
-  homeTeam: z.string(),
-  awayTeam: z.string(),
-  kickoffTime: z.string(),
+  fixture: z.object({
+    id: z.number(),
+    date: z.string().datetime(),
+    status: z.object({
+      long: z.string(),
+    }),
+  }),
+  teams: z.object({
+    home: z.object({
+      id: z.number(),
+      name: z.string(),
+      logo: z.string().optional(),
+    }),
+    away: z.object({
+      id: z.number(),
+      name: z.string(),
+      logo: z.string().optional(),
+    }),
+  }),
+  league: z.object({
+    id: z.number(),
+    name: z.string(),
+    logo: z.string().optional(),
+  }),
 });
 
 export type Fixture = z.infer<typeof FixtureSchema>;
 
 /**
- * Fetches all today's football fixtures.
+ * Fetches football fixtures for a given date (default: today).
  *
+ * @param date - Optional ISO date string (e.g., '2026-02-22')
  * @returns A promise resolving to an array of fixture objects.
  */
-export async function fetchFixtures(): Promise<Fixture[]> {
+export async function fetchFixtures(date?: string): Promise<Fixture[]> {
   const apiKey = process.env.FOOTBALL_API_KEY;
 
   if (!apiKey) {
@@ -45,14 +66,29 @@ export async function fetchFixtures(): Promise<Fixture[]> {
     return [];
   }
 
-  // TODO (@BackendExpert): Replace stub with real Football API call
-  // const response = await fetch(`https://api-football-v1.p.rapidapi.com/v3/...`, {
-  //   headers: { 'x-rapidapi-key': apiKey },
-  // });
-  // const json = await response.json();
-  // const parsed = z.array(FixtureSchema).safeParse(json);
-  // return parsed.success ? parsed.data : [];
+  const targetDate = date || new Date().toISOString().split('T')[0];
 
-  // Stub — remove once API is wired up
-  return [];
+  try {
+    const response = await fetch(
+      `https://v3.football.api-sports.io/fixtures?date=${targetDate}`,
+      {
+        headers: {
+          'x-apisports-key': apiKey,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      console.error(`[football] API error: ${response.status}`);
+      return [];
+    }
+
+    const json = await response.json();
+    const parsed = z.array(FixtureSchema).safeParse(json.response);
+
+    return parsed.success ? parsed.data : [];
+  } catch (error) {
+    console.error('[football] fetch error:', error);
+    return [];
+  }
 }

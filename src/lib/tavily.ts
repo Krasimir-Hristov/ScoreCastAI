@@ -22,19 +22,21 @@
 
 import { z } from 'zod';
 
-// TODO (@BackendExpert): Define proper Zod schema based on Tavily API response
+// Zod schema for news items from Tavily API
 const NewsSchema = z.object({
   title: z.string(),
-  snippet: z.string(),
-  url: z.string(),
+  description: z.string().optional(),
+  url: z.string().url(),
+  source: z.string().optional(),
+  published_date: z.string().optional(),
 });
 
 export type NewsItem = z.infer<typeof NewsSchema>;
 
 /**
- * Searches for news related to a specific match.
+ * Searches for news related to a specific match or query.
  *
- * @param query - The search query (e.g., team names, match ID).
+ * @param query - The search query (e.g., 'Arsenal vs Chelsea', team names).
  * @returns A promise resolving to an array of news items.
  */
 export async function searchNews(query: string): Promise<NewsItem[]> {
@@ -45,16 +47,35 @@ export async function searchNews(query: string): Promise<NewsItem[]> {
     return [];
   }
 
-  // TODO (@BackendExpert): Replace stub with real Tavily API call
-  // const response = await fetch('https://api.tavily.com/search', {
-  //   method: 'POST',
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify({ api_key: apiKey, query }),
-  // });
-  // const json = await response.json();
-  // const parsed = z.array(NewsSchema).safeParse(json.results);
-  // return parsed.success ? parsed.data : [];
+  try {
+    const response = await fetch('https://api.tavily.com/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        api_key: apiKey,
+        query,
+        include_domains: [
+          'bbc.com',
+          'espn.com',
+          'skysports.com',
+          'goal.com',
+          'transfermarkt.com',
+        ],
+        max_results: 5,
+      }),
+    });
 
-  // Stub — remove once API is wired up
-  return [];
+    if (!response.ok) {
+      console.error(`[tavily] API error: ${response.status}`);
+      return [];
+    }
+
+    const json = await response.json();
+    const parsed = z.array(NewsSchema).safeParse(json.results || []);
+
+    return parsed.success ? parsed.data : [];
+  } catch (error) {
+    console.error('[tavily] fetch error:', error);
+    return [];
+  }
 }

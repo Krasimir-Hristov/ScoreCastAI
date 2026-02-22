@@ -25,8 +25,18 @@
  * });
  */
 
-// TODO (@BackendExpert): Uncomment once @google/generative-ai is installed
-// import { GoogleGenerativeAI } from '@google/generative-ai';
+// QA: ✅ VERIFIED — @google/generative-ai@0.24.1 is installed in package.json
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { z } from 'zod';
+
+// Zod schema for structured prediction output from Gemini
+const PredictionOutputSchema = z.object({
+  outcome: z.enum(['home', 'draw', 'away']),
+  confidence: z.enum(['low', 'medium', 'high']),
+  reasoning: z.string(),
+});
+
+export type PredictionOutput = z.infer<typeof PredictionOutputSchema>;
 
 export interface PredictionInput {
   homeTeam: string;
@@ -40,32 +50,50 @@ export interface PredictionInput {
 }
 
 /**
- * Generates a match prediction using Gemini 2.5 Flash.
+ * Generates a match prediction using Gemini 2.5 Flash with JSON mode.
  *
  * @param input - Match context including teams, odds, and recent news snippets.
- * @returns A promise resolving to a plain-text prediction string.
+ * @returns A promise resolving to a structured prediction object.
  */
 export async function generatePrediction(
   input: PredictionInput,
-): Promise<string> {
+): Promise<PredictionOutput | null> {
   const apiKey = process.env.GOOGLE_API_KEY;
 
   if (!apiKey) {
-    throw new Error(
-      '[gemini] GOOGLE_API_KEY is not set in environment variables.',
-    );
+    console.error('[gemini] GOOGLE_API_KEY is not set.');
+    return null;
   }
 
-  // TODO (@BackendExpert): Replace stub with real Gemini SDK call
-  // const genAI = new GoogleGenerativeAI(apiKey);
-  // const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-  //
-  // const prompt = buildPredictionPrompt(input);
-  // const result = await model.generateContent(prompt);
-  // return result.response.text();
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-2.5-flash',
+      generationConfig: {
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: 'object',
+          properties: {
+            outcome: { type: 'string', enum: ['home', 'draw', 'away'] },
+            confidence: { type: 'string', enum: ['low', 'medium', 'high'] },
+            reasoning: { type: 'string' },
+          },
+          required: ['outcome', 'confidence', 'reasoning'],
+        },
+      },
+    });
 
-  // Stub — remove once SDK is wired up
-  return `[STUB] Prediction for ${input.homeTeam} vs ${input.awayTeam} — implement generatePrediction().`;
+    const prompt = buildPredictionPrompt(input);
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    const json = JSON.parse(text);
+    const parsed = PredictionOutputSchema.safeParse(json);
+
+    return parsed.success ? parsed.data : null;
+  } catch (error) {
+    console.error('[gemini] prediction error:', error);
+    return null;
+  }
 }
 
 /**
