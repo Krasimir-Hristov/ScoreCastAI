@@ -26,7 +26,7 @@ import { z } from 'zod';
 const FixtureSchema = z.object({
   fixture: z.object({
     id: z.number(),
-    date: z.string().datetime(),
+    date: z.string(), // Removed .datetime() because API-Sports returns dates that Zod's strict datetime might reject
     status: z.object({
       long: z.string(),
     }),
@@ -35,18 +35,18 @@ const FixtureSchema = z.object({
     home: z.object({
       id: z.number(),
       name: z.string(),
-      logo: z.string().optional(),
+      logo: z.string().nullish(), // Changed to nullish to allow null values
     }),
     away: z.object({
       id: z.number(),
       name: z.string(),
-      logo: z.string().optional(),
+      logo: z.string().nullish(), // Changed to nullish to allow null values
     }),
   }),
   league: z.object({
     id: z.number(),
     name: z.string(),
-    logo: z.string().optional(),
+    logo: z.string().nullish(), // Changed to nullish to allow null values
   }),
 });
 
@@ -85,6 +85,10 @@ export async function fetchFixtures(date?: string): Promise<Fixture[]> {
 
     const json = await response.json();
     const parsed = z.array(FixtureSchema).safeParse(json.response);
+
+    if (!parsed.success) {
+      console.error('[football] Zod parsing error:', JSON.stringify(parsed.error.format(), null, 2));
+    }
 
     return parsed.success ? parsed.data : [];
   } catch (error) {

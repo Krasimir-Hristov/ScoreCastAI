@@ -25,7 +25,6 @@
  * });
  */
 
-// QA: ✅ VERIFIED — @google/generative-ai@0.24.1 is installed in package.json
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { z } from 'zod';
 

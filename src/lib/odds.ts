@@ -67,8 +67,6 @@ export async function fetchOdds(): Promise<Odds[]> {
   }
 
   try {
-    // QA: 🟢 INFO — Hardcoded to Premier League (soccer_epl)
-    // QA: Future: Make sport_key configurable for multi-league support
     const response = await fetch(
       'https://api.the-odds-api.com/v4/sports/soccer_epl/odds',
       {
