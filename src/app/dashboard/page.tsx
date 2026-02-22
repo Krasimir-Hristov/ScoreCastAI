@@ -1,25 +1,30 @@
-import { verifySession } from '@/lib/dal';
-import { signOut } from '@/actions/auth';
-import { Button } from '@/components/ui/button';
+import { Suspense } from 'react';
 
-export default async function DashboardPage() {
-  // Това е ключовият момент - verifySession() проверява дали има логнат потребител.
-  // Ако няма, автоматично пренасочва към /login.
-  const { user } = await verifySession();
+import { getMatchList } from '@/lib/proxy';
+import { LeagueMatchBrowser } from '@/components/LeagueMatchBrowser';
+
+function DashboardFallback() {
+  return (
+    <div className='space-y-4'>
+      <div className='h-8 w-56 animate-pulse rounded-md bg-muted' />
+      <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+        {Array.from({ length: 6 }).map((_, idx) => (
+          <div
+            key={idx}
+            className='h-56 animate-pulse rounded-xl border bg-card'
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function DashboardPage() {
+  const matchListPromise = getMatchList();
 
   return (
-    <div className='flex min-h-screen flex-col items-center justify-center p-4 space-y-6'>
-      <h1 className='text-3xl font-bold'>Табло (Dashboard)</h1>
-      <p className='text-lg text-muted-foreground'>
-        Добре дошли,{' '}
-        <span className='font-semibold text-foreground'>{user.email}</span>!
-      </p>
-
-      <form action={signOut}>
-        <Button type='submit' variant='outline'>
-          Изход
-        </Button>
-      </form>
-    </div>
+    <Suspense fallback={<DashboardFallback />}>
+      <LeagueMatchBrowser dataPromise={matchListPromise} />
+    </Suspense>
   );
 }

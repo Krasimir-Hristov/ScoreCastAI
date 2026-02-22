@@ -67,26 +67,30 @@ export async function fetchOdds(): Promise<Odds[]> {
   }
 
   try {
-    const response = await fetch(
+    const url = new URL(
       'https://api.the-odds-api.com/v4/sports/soccer_epl/odds',
-      {
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-        },
-      },
     );
+    url.searchParams.set('apiKey', apiKey);
+    url.searchParams.set('regions', 'eu');
+    url.searchParams.set('markets', 'h2h');
+    url.searchParams.set('oddsFormat', 'decimal');
+
+    const response = await fetch(url.toString());
 
     if (!response.ok) {
-      console.error(`[odds] API error: ${response.status}`);
+      const body = await response.text().catch(() => '');
+      console.warn(
+        `[odds] API error: ${response.status}${body ? ` — ${body.slice(0, 200)}` : ''}`,
+      );
       return [];
     }
 
     const json = await response.json();
-    const parsed = z.array(OddsSchema).safeParse(json.data || []);
+    const parsed = z.array(OddsSchema).safeParse(json);
 
     return parsed.success ? parsed.data : [];
   } catch (error) {
-    console.error('[odds] fetch error:', error);
+    console.warn('[odds] fetch error:', error);
     return [];
   }
 }
