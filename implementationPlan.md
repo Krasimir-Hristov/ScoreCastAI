@@ -87,15 +87,15 @@ Agent: @FrontendExpert
 > **Unlocks:** Phase 5 (extends dashboard with user features)
 > **Prerequisites:** Phase 1 complete
 
-| #   | [ ] | File                               | Agent           | Description                                                                                                                    |
+| #   | [x] | File                               | Agent           | Description                                                                                                                    |
 | --- | --- | ---------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| 16  | [ ] | `app/page.tsx`                     | @FrontendExpert | Replace default Next.js page — redirect to `/dashboard` or landing page with CTA                                               |
-| 17  | [ ] | `src/app/dashboard/layout.tsx`     | @FrontendExpert | Dashboard shell — nav header with logo, dark mode toggle, `children` outlet                                                    |
-| 18  | [ ] | `src/app/dashboard/loading.tsx`    | @FrontendExpert | Loading skeleton — 3-5 MatchCard skeletons with Tailwind pulse animation                                                       |
-| 19  | [ ] | `src/app/dashboard/error.tsx`      | @FrontendExpert | Error boundary — friendly message, "Try Again" button calling `reset()`                                                        |
-| 20  | [ ] | `src/app/dashboard/page.tsx`       | @FrontendExpert | Main page — calls `getMatchList()`, React 19 `use()` hook, `<Suspense>` wrapper, maps to `<MatchCard>`                         |
-| 21  | [ ] | `src/components/MatchCard.tsx`     | @FrontendExpert | Match card — teams, date, odds, "Deep Dive" button — shadcn/ui Card, under 150 lines                                           |
-| 22  | [ ] | `src/components/DeepDiveModal.tsx` | @FrontendExpert | AI analysis modal — calls `getDeepDiveAnalysis(matchId)`, displays news + prediction, Framer Motion slide-in, shadcn/ui Dialog |
+| 16  | [x] | `app/page.tsx`                     | @FrontendExpert | Replace default Next.js page — redirect to `/dashboard` or landing page with CTA                                               |
+| 17  | [x] | `src/app/dashboard/layout.tsx`     | @FrontendExpert | Dashboard shell — nav header with logo, dark mode toggle, `children` outlet                                                    |
+| 18  | [x] | `src/app/dashboard/loading.tsx`    | @FrontendExpert | Loading skeleton — 3-5 MatchCard skeletons with Tailwind pulse animation                                                       |
+| 19  | [x] | `src/app/dashboard/error.tsx`      | @FrontendExpert | Error boundary — friendly message, "Try Again" button calling `reset()`                                                        |
+| 20  | [x] | `src/app/dashboard/page.tsx`       | @FrontendExpert | Main page — calls `getMatchList()`, React 19 `use()` hook, `<Suspense>` wrapper, maps to `<MatchCard>`                         |
+| 21  | [x] | `src/components/MatchCard.tsx`     | @FrontendExpert | Match card — teams, date, odds, "Deep Dive" button — shadcn/ui Card, under 150 lines                                           |
+| 22  | [x] | `src/components/DeepDiveModal.tsx` | @FrontendExpert | AI analysis modal — calls `getDeepDiveAnalysis(matchId)`, displays news + prediction, Framer Motion slide-in, shadcn/ui Dialog |
 
 **Phase 4 complete when:** `/dashboard` loads real matches, "Deep Dive" opens modal with Gemini prediction.
 
