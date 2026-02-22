@@ -47,13 +47,13 @@ Agent: @SupabaseExpert
 > **Unlocks:** Phase 3 (Auth needs schema), Phase 5 (User features need tables)
 > **Can run in parallel with:** Phase 3
 
-| #   | [x] | File                    | Agent           | Description                                                                                                         |
-| --- | --- | ----------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------- |
-| 6   | [x] | Supabase dashboard      | @SupabaseExpert | Create `predictions` table — `id`, `user_id`, `match_id`, `prediction_data` (JSONB), `created_at`                   |
-| 7   | [x] | Supabase dashboard      | @SupabaseExpert | Create `favorites` table — `id`, `user_id`, `match_id`, `created_at` — unique constraint on (`user_id`, `match_id`) |
-| 8   | [x] | Supabase dashboard      | @SupabaseExpert | Create `match_history` table — `id`, `user_id`, `match_id`, `viewed_at`                                             |
-| 9   | [x] | Supabase dashboard      | @SupabaseExpert | Enable RLS on all 3 tables — add SELECT / INSERT / UPDATE / DELETE policies using `auth.uid() = user_id`            |
-| 10  | [x] | `src/types/database.ts` | @SupabaseExpert | Generate TypeScript types via Supabase CLI — `npx supabase gen types typescript ...`                                |
+| #   | [x] | File                                        | Agent           | Description                                                                                                         |
+| --- | --- | ------------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------- |
+| 6   | [x] | `supabase/migrations/001_create_tables.sql` | @SupabaseExpert | Create `predictions` table — `id`, `user_id`, `match_id`, `prediction_data` (JSONB), `created_at`                   |
+| 7   | [x] | `supabase/migrations/001_create_tables.sql` | @SupabaseExpert | Create `favorites` table — `id`, `user_id`, `match_id`, `created_at` — unique constraint on (`user_id`, `match_id`) |
+| 8   | [x] | `supabase/migrations/001_create_tables.sql` | @SupabaseExpert | Create `match_history` table — `id`, `user_id`, `match_id`, `viewed_at`                                             |
+| 9   | [x] | `supabase/migrations/001_create_tables.sql` | @SupabaseExpert | Enable RLS on all 3 tables — add SELECT / INSERT / DELETE policies using `auth.uid() = user_id`                     |
+| 10  | [x] | `src/types/database.ts`                     | @SupabaseExpert | Generate TypeScript types via Supabase CLI — `npx supabase gen types typescript ...`                                |
 
 **Phase 2 complete when:** All 3 tables exist in Supabase with RLS enabled, and types file is generated.
 
@@ -144,15 +144,15 @@ Agent: @FrontendExpert + @QA_Auditor
 
 ## File Count Summary
 
-| Phase                   | New Files                                                                          | Modified Files                    |
-| ----------------------- | ---------------------------------------------------------------------------------- | --------------------------------- |
-| Phase 1 — Backend APIs  | 4 (`football`, `tavily`, `gemini`, `lib/proxy`)                                    | 1 (`odds.ts` ✅)                  |
-| Phase 2 — Database      | 1 (`database.ts`)                                                                  | Supabase dashboard, `supabase.ts` |
-| Phase 3 — Auth          | 4 (`dal`, `auth actions`, `login`, `register`, `callback`)                         | —                                 |
-| Phase 4 — Dashboard     | 7 (`layout`, `loading`, `error`, `page`, `MatchCard`, `DeepDiveModal`, `app/page`) | —                                 |
-| Phase 5 — User Features | 4 (`predictions`, `favorites`, `history actions`, `history page`)                  | 2 (`MatchCard`, `DeepDiveModal`)  |
-| Phase 6 — Polish        | 3 (`error`, `not-found`, `metadata`)                                               | several                           |
-| **Total**               | **~23 files**                                                                      | **~5 files**                      |
+| Phase                   | New Files                                                                          | Modified Files                   |
+| ----------------------- | ---------------------------------------------------------------------------------- | -------------------------------- |
+| Phase 1 — Backend APIs  | 4 (`football`, `tavily`, `gemini`, `lib/proxy`)                                    | 1 (`odds.ts` ✅)                 |
+| Phase 2 — Database      | 1 (`database.ts`), 1 (`001_create_tables.sql`)                                     | `supabase.ts`                    |
+| Phase 3 — Auth          | 4 (`dal`, `auth actions`, `login`, `register`, `callback`)                         | —                                |
+| Phase 4 — Dashboard     | 7 (`layout`, `loading`, `error`, `page`, `MatchCard`, `DeepDiveModal`, `app/page`) | —                                |
+| Phase 5 — User Features | 4 (`predictions`, `favorites`, `history actions`, `history page`)                  | 2 (`MatchCard`, `DeepDiveModal`) |
+| Phase 6 — Polish        | 3 (`error`, `not-found`, `metadata`)                                               | several                          |
+| **Total**               | **~23 files**                                                                      | **~5 files**                     |
 
 ---
 
