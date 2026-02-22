@@ -46,6 +46,7 @@ const FixtureSchema = z.object({
   league: z.object({
     id: z.number(),
     name: z.string(),
+    country: z.string().nullish(),
     logo: z.string().nullish(), // Changed to nullish to allow null values
   }),
 });

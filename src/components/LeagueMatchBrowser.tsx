@@ -5,7 +5,6 @@ import { use, useMemo, useState } from 'react';
 import type { MatchListData } from '@/lib/proxy';
 import type { Odds } from '@/lib/odds';
 import type { Fixture } from '@/lib/football';
-import { getLeagueInfo } from '@/lib/league-info';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -52,17 +51,16 @@ export function LeagueMatchBrowser({
   }, [data.odds]);
 
   const leagues = useMemo(() => {
-    // Deduplicate by name and include country from league-info
+    // Deduplicate by name and include country from API league data
     const nameSet = new Set<string>();
     const result: LeagueOption[] = [];
     for (const f of data.fixtures) {
       if (!nameSet.has(f.league.name)) {
         nameSet.add(f.league.name);
-        const info = getLeagueInfo(f.league.name);
         result.push({
           id: f.league.id,
           name: f.league.name,
-          country: info.country,
+          country: f.league.country ?? 'International',
         });
       }
     }

@@ -2,7 +2,6 @@
 
 import type { Fixture } from '@/lib/football';
 import type { Odds } from '@/lib/odds';
-import { getLeagueInfo } from '@/lib/league-info';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -52,16 +51,14 @@ export function MatchCard({
   const kickoff = formatKickoff(fixture.fixture.date);
   const status = fixture.fixture.status.long;
   const prices = bestThreeWayPrices(odds);
-  const leagueInfo = getLeagueInfo(fixture.league.name);
+  const country = fixture.league.country ?? 'International';
 
   return (
     <Card className='transition-colors hover:bg-accent/40'>
       <CardHeader className='space-y-1'>
         <CardTitle className='text-base'>{fixture.league.name}</CardTitle>
         <CardDescription>
-          <span className='text-xs text-muted-foreground/75'>
-            {leagueInfo.country}
-          </span>
+          <span className='text-xs text-muted-foreground/75'>{country}</span>
           <span className='mx-1 text-xs text-muted-foreground/75'>•</span>
           <span className='text-xs text-muted-foreground'>
             {kickoff} • {status}
