@@ -20,6 +20,9 @@ export interface Database {
           id: string;
           user_id: string;
           match_id: string;
+          home_team: string | null;
+          away_team: string | null;
+          match_date: string | null;
           prediction_data: PredictionData;
           created_at: string;
         };
@@ -27,6 +30,9 @@ export interface Database {
           id?: string;
           user_id: string;
           match_id: string;
+          home_team?: string | null;
+          away_team?: string | null;
+          match_date?: string | null;
           prediction_data: PredictionData;
           created_at?: string;
         };
@@ -34,6 +40,9 @@ export interface Database {
           id?: string;
           user_id?: string;
           match_id?: string;
+          home_team?: string | null;
+          away_team?: string | null;
+          match_date?: string | null;
           prediction_data?: PredictionData;
           created_at?: string;
         };
@@ -63,18 +72,27 @@ export interface Database {
           id: string;
           user_id: string;
           match_id: string;
+          home_team: string | null;
+          away_team: string | null;
+          match_date: string | null;
           viewed_at: string;
         };
         Insert: {
           id?: string;
           user_id: string;
           match_id: string;
+          home_team?: string | null;
+          away_team?: string | null;
+          match_date?: string | null;
           viewed_at?: string;
         };
         Update: {
           id?: string;
           user_id?: string;
           match_id?: string;
+          home_team?: string | null;
+          away_team?: string | null;
+          match_date?: string | null;
           viewed_at?: string;
         };
       };

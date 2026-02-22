@@ -5,6 +5,7 @@ import { use, useMemo, useState } from 'react';
 import type { MatchListData } from '@/lib/proxy';
 import type { Odds } from '@/lib/odds';
 import type { Fixture } from '@/lib/football';
+import type { Favorite } from '@/actions/favorites';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -34,10 +35,18 @@ function bestOddsForFixture(
 
 export function LeagueMatchBrowser({
   dataPromise,
+  favoritesPromise,
 }: {
   dataPromise: Promise<MatchListData>;
+  favoritesPromise: Promise<Favorite[]>;
 }) {
   const data = use(dataPromise);
+  const favorites = use(favoritesPromise);
+
+  const favoriteMatchIds = useMemo(() => {
+    return new Set(favorites.map((f) => f.match_id));
+  }, [favorites]);
+
   const [selectedLeagueId, setSelectedLeagueId] = useState<number | 'all'>(
     'all',
   );
@@ -144,6 +153,7 @@ export function LeagueMatchBrowser({
               key={fixture.fixture.id}
               fixture={fixture}
               odds={bestOddsForFixture(fixture, oddsMap)}
+              isFavorite={favoriteMatchIds.has(String(fixture.fixture.id))}
             />
           ))}
         </div>

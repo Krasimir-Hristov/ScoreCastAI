@@ -25,7 +25,7 @@
  * });
  */
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import { z } from 'zod';
 import { buildPredictionPrompt } from '@/lib/gemini.prompts';
 
@@ -73,23 +73,31 @@ export async function generatePrediction(
       model: 'gemini-2.5-flash',
       generationConfig: {
         responseMimeType: 'application/json',
-        // Cast the literal JSON schema to any to satisfy the library's SchemaType.
-        // The runtime will still receive a proper JSON schema object.
+        // The library's TypeScript typings for `responseSchema` are strict and
+        // don't exactly match a raw JSON Schema object. At runtime the SDK
+        // accepts this shape; cast it to `any` while keeping the literal
+        // schema visible for maintainability.
         responseSchema: {
-          type: 'object',
+          type: SchemaType.OBJECT,
           properties: {
-            winner: { type: 'string' },
+            winner: { type: SchemaType.STRING },
             predictedScore: {
-              type: 'object',
+              type: SchemaType.OBJECT,
               properties: {
-                home: { type: 'number' },
-                away: { type: 'number' },
+                home: { type: SchemaType.NUMBER },
+                away: { type: SchemaType.NUMBER },
               },
               required: ['home', 'away'],
             },
-            confidence: { type: 'string', enum: ['low', 'medium', 'high'] },
-            reasoning: { type: 'string' },
-            warnings: { type: 'array', items: { type: 'string' } },
+            confidence: {
+              type: SchemaType.STRING,
+              enum: ['low', 'medium', 'high'],
+            },
+            reasoning: { type: SchemaType.STRING },
+            warnings: {
+              type: SchemaType.ARRAY,
+              items: { type: SchemaType.STRING },
+            },
           },
           required: [
             'winner',

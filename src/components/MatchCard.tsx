@@ -1,7 +1,12 @@
 'use client';
 
+import { useState } from 'react';
+import { Heart } from 'lucide-react';
+import { toast } from 'sonner';
+
 import type { Fixture } from '@/lib/football';
 import type { Odds } from '@/lib/odds';
+import { addFavorite, removeFavorite } from '@/actions/favorites';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -44,26 +49,78 @@ function bestThreeWayPrices(odds: Odds | null) {
 export function MatchCard({
   fixture,
   odds,
+  isFavorite: initialFavorite = false,
 }: {
   fixture: Fixture;
   odds: Odds | null;
+  isFavorite?: boolean;
 }) {
+  const [isFavorite, setIsFavorite] = useState(initialFavorite);
+  const [isLoading, setIsLoading] = useState(false);
+  const matchId = String(fixture.fixture.id);
+
+  const toggleFavorite = async () => {
+    setIsLoading(true);
+    const nextState = !isFavorite;
+    setIsFavorite(nextState); // Optimistic
+
+    try {
+      const result = nextState
+        ? await addFavorite(matchId)
+        : await removeFavorite(matchId);
+
+      if (!result) throw new Error('Auth required');
+      toast.success(
+        nextState ? 'Added to favorites' : 'Removed from favorites',
+      );
+    } catch {
+      setIsFavorite(!nextState); // Rollback
+      toast.error('Sign in to manage favorites');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const kickoff = formatKickoff(fixture.fixture.date);
-  const status = fixture.fixture.status.long;
   const prices = bestThreeWayPrices(odds);
-  const country = fixture.league.country ?? 'International';
 
   return (
     <Card className='transition-colors hover:bg-accent/40'>
-      <CardHeader className='space-y-1'>
-        <CardTitle className='text-base'>{fixture.league.name}</CardTitle>
-        <CardDescription>
-          <span className='text-xs text-muted-foreground/75'>{country}</span>
-          <span className='mx-1 text-xs text-muted-foreground/75'>•</span>
-          <span className='text-xs text-muted-foreground'>
-            {kickoff} • {status}
-          </span>
-        </CardDescription>
+      <CardHeader className='pb-2 pt-4 px-4'>
+        <div className='flex items-start justify-between gap-2'>
+          <div className='space-y-1'>
+            <CardTitle className='text-base leading-tight'>
+              {fixture.league.name}
+            </CardTitle>
+            <CardDescription className='flex flex-wrap items-center gap-x-1.5'>
+              <span className='text-xs text-muted-foreground/75'>
+                {fixture.league.country}
+              </span>
+              <span className='text-xs text-muted-foreground/75'>•</span>
+              <span className='text-xs text-muted-foreground/75'>
+                {kickoff}
+              </span>
+              <span className='text-xs text-muted-foreground/75'>•</span>
+              <span className='text-xs font-medium text-foreground/80'>
+                {fixture.fixture.status.long}
+              </span>
+            </CardDescription>
+          </div>
+          <Button
+            variant='ghost'
+            size='icon'
+            className='-mr-2 -mt-2 h-8 w-8 text-muted-foreground hover:text-destructive'
+            onClick={toggleFavorite}
+            disabled={isLoading}
+          >
+            <Heart
+              className={`h-4 w-4 transition-all ${
+                isFavorite ? 'fill-destructive text-destructive' : ''
+              }`}
+            />
+            <span className='sr-only'>Toggle favorite</span>
+          </Button>
+        </div>
       </CardHeader>
 
       <CardContent className='space-y-2'>
@@ -86,6 +143,7 @@ export function MatchCard({
 
       <CardFooter className='justify-between'>
         <DeepDiveModal
+          matchId={matchId}
           homeTeam={fixture.teams.home.name}
           awayTeam={fixture.teams.away.name}
           title={`${fixture.teams.home.name} vs ${fixture.teams.away.name}`}

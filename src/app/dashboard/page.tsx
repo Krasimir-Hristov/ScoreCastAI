@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 
 import { getMatchList } from '@/lib/proxy';
+import { getUserFavorites } from '@/actions/favorites';
 import { LeagueMatchBrowser } from '@/components/LeagueMatchBrowser';
 
 function DashboardFallback() {
@@ -21,10 +22,14 @@ function DashboardFallback() {
 
 export default function DashboardPage() {
   const matchListPromise = getMatchList();
+  const favoritesPromise = getUserFavorites();
 
   return (
     <Suspense fallback={<DashboardFallback />}>
-      <LeagueMatchBrowser dataPromise={matchListPromise} />
+      <LeagueMatchBrowser
+        dataPromise={matchListPromise}
+        favoritesPromise={favoritesPromise}
+      />
     </Suspense>
   );
 }

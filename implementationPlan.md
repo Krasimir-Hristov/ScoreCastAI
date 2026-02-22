@@ -101,6 +101,44 @@ Agent: @FrontendExpert
 
 ---
 
+## Phase 5 — User Features
+
+Agent: @FrontendExpert + @SupabaseExpert
+
+> **Goal:** Extend the dashboard with user-specific data — favorites, history, and saving predictions.
+> **Prerequisites:** Phase 4 + Phase 2 + Phase 3 complete
+
+| #   | [x] | File                                 | Agent           | Description                                                                                                                         |
+| --- | --- | ------------------------------------ | --------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| 23  | [x] | `src/actions/favorites.ts`           | @SupabaseExpert | Server Action: `toggleFavorite(matchId)`, `addFavorite(matchId)`, `removeFavorite(matchId)` with optimistic UI support.             |
+| 24  | [x] | `src/actions/history.ts`             | @SupabaseExpert | Server Action: `trackMatchView(matchId)`, `getUserHistory()`. Metadata (teams, date) added.                                         |
+| 25  | [x] | `src/actions/predictions.ts`         | @SupabaseExpert | Server Action: `savePrediction(matchId, outcome, confidence, reasoning)`, `getUserPredictions()`.                                   |
+| 26  | [x] | `src/components/MatchCard.tsx`       | @FrontendExpert | Update UI: Add heart icon button (toggle favorite), optimistic UI update using `useOptimistic` or local state.                      |
+| 27  | [x] | `src/components/DeepDiveContent.tsx` | @FrontendExpert | Update UI: Add "Save Prediction" button inside the modal/card. Calls `savePrediction` on click.                                     |
+| 28  | [x] | `src/app/dashboard/history/page.tsx` | @FrontendExpert | History Page: List of viewed matches and saved predictions. Fetch `getUserHistory` and `getUserPredictions` in parallel.            |
+| 29  | [x] | `src/components/HistoryList.tsx`     | @FrontendExpert | History List Component: Unified timeline view of history and predictions. Groups by date (Today/Yesterday).                         |
+| 30  | [x] | `src/types/database.ts`              | @SupabaseExpert | Schema Update: Added `home_team`, `away_team`, `match_date` to `predictions` and `match_history` tables for better history display. |
+
+**Phase 5 complete when:** Users can toggle favorites, save predictions, see a toast notification, and view their history on a dedicated page.
+
+---
+
+## Phase 6 — Polish & QA
+
+Agent: @QA_Auditor + @DesignerExpert
+
+> **Goal:** Visual refinement, mobile responsiveness check, and code quality audit.
+> **Prerequisites:** Phase 5 complete
+
+| #   | [ ] | File                  | Agent           | Description                                                                                    |
+| --- | --- | --------------------- | --------------- | ---------------------------------------------------------------------------------------------- |
+| 31  | [ ] | `src/app/globals.css` | @DesignerExpert | Global styles check — ensure Tailwind v4 theme is consistent, dark mode colors are accessible. |
+| 32  | [ ] | `src/**/*`            | @QA_Auditor     | 150-line limit audit — scan all files, ensuring larger components are split.                   |
+| 33  | [ ] | `src/**/*`            | @QA_Auditor     | React 19 audit — verify `use()` is used correctly, no `useEffect` for data fetching.           |
+| 34  | [ ] | `src/**/*`            | @QA_Auditor     | Type safety audit — verify all `any` uses are resolved or justified (e.g. valid `ts-ignore`).  |
+
+---
+
 ## Phase 5 — User Features (Predictions, Favorites, History)
 
 Agent: @FrontendExpert + @SupabaseExpert
