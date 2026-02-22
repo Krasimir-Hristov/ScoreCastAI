@@ -70,6 +70,8 @@ export async function generatePrediction(
       model: 'gemini-2.5-flash',
       generationConfig: {
         responseMimeType: 'application/json',
+        // Cast the literal JSON schema to any to satisfy the library's SchemaType.
+        // The runtime will still receive a proper JSON schema object.
         responseSchema: {
           type: 'object',
           properties: {
@@ -78,7 +80,7 @@ export async function generatePrediction(
             reasoning: { type: 'string' },
           },
           required: ['outcome', 'confidence', 'reasoning'],
-        },
+        } as unknown as any,
       },
     });
 

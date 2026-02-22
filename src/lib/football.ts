@@ -87,7 +87,10 @@ export async function fetchFixtures(date?: string): Promise<Fixture[]> {
     const parsed = z.array(FixtureSchema).safeParse(json.response);
 
     if (!parsed.success) {
-      console.error('[football] Zod parsing error:', JSON.stringify(parsed.error.format(), null, 2));
+      console.error(
+        '[football] Zod parsing error:',
+        JSON.stringify(parsed.error.format(), null, 2),
+      );
     }
 
     return parsed.success ? parsed.data : [];
