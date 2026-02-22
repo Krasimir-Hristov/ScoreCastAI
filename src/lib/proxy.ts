@@ -33,24 +33,31 @@ export interface MatchListData {
   odds: Odds[];
 }
 
-const ALLOWED_LEAGUES = new Set([
-  'UEFA Champions League',
-  'UEFA Europa League',
-  'UEFA Europa Conference League',
-  'UEFA Conference League',
-  'Premier League',
-  'La Liga',
-  'Primera Division',
-  'Bundesliga',
-  'Bundesliga 1',
-  'Serie A',
-  'Ligue 1',
-  'Eredivisie',
-  'Primeira Liga',
-  'UEFA Nations League',
-  'Euro Championship',
-  'UEFA European Championship',
-]);
+// Allowed leagues and countries for match filtering
+const ALLOWED_LEAGUES = [
+  // UEFA Competitions (no country filter needed)
+  { name: 'UEFA Champions League', country: null },
+  { name: 'Champions League', country: null },
+  { name: 'UEFA Europa League', country: null },
+  { name: 'Europa League', country: null },
+  { name: 'UEFA Europa Conference League', country: null },
+  { name: 'UEFA Conference League', country: null },
+  { name: 'Conference League', country: null },
+  { name: 'UEFA Nations League', country: null },
+  { name: 'UEFA European Championship', country: null },
+  { name: 'Euro Championship', country: null },
+  { name: 'European Championship', country: null },
+
+  // Top National Leagues (with country filter)
+  { name: 'Premier League', country: 'England' },
+  { name: 'La Liga', country: 'Spain' },
+  { name: 'Primera Division', country: 'Spain' },
+  { name: 'Bundesliga', country: 'Germany' },
+  { name: 'Serie A', country: 'Italy' },
+  { name: 'Ligue 1', country: 'France' },
+  { name: 'Eredivisie', country: 'Netherlands' },
+  { name: 'Primeira Liga', country: 'Portugal' },
+];
 
 /**
  * Flow A: Fetches all today's matches + odds.
@@ -65,9 +72,14 @@ export async function getMatchList(): Promise<MatchListData> {
   const allFixtures =
     fixturesResult.status === 'fulfilled' ? fixturesResult.value : [];
 
-  const filteredFixtures = allFixtures.filter((f) =>
-    ALLOWED_LEAGUES.has(f.league.name),
-  );
+  const filteredFixtures = allFixtures.filter((fixture) => {
+    return ALLOWED_LEAGUES.some((allowed) => {
+      const nameMatches = fixture.league.name === allowed.name;
+      const countryMatches =
+        allowed.country === null || fixture.league.country === allowed.country;
+      return nameMatches && countryMatches;
+    });
+  });
 
   return {
     fixtures: filteredFixtures,
