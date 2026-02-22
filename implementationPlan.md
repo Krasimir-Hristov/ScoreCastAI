@@ -69,11 +69,11 @@ Agent: @AuthExpert
 
 | #   | [ ] | File                               | Agent           | Description                                                                                                                         |
 | --- | --- | ---------------------------------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| 11  | [ ] | `src/lib/dal.ts`                   | @AuthExpert     | Create `verifySession()` wrapped in `cache()` — reads Supabase session, returns `{ isAuth, userId, user }` or redirects to `/login` |
-| 12  | [ ] | `src/actions/auth.ts`              | @AuthExpert     | Server Actions: `signUp(formData)`, `signIn(formData)`, `signOut()` — Zod validation, Supabase auth calls, redirect on success      |
-| 13  | [ ] | `src/app/(auth)/login/page.tsx`    | @FrontendExpert | Login form — email + password, `useActionState(signIn)`, display errors, link to register                                           |
-| 14  | [ ] | `src/app/(auth)/register/page.tsx` | @FrontendExpert | Register form — email + password, `useActionState(signUp)`, display errors, email confirmation notice                               |
-| 15  | [ ] | `src/app/auth/callback/route.ts`   | @AuthExpert     | Email confirmation callback — exchange code for session, redirect to `/dashboard`                                                   |
+| 11  | [x] | `src/lib/dal.ts`                   | @AuthExpert     | Create `verifySession()` wrapped in `cache()` — reads Supabase session, returns `{ isAuth, userId, user }` or redirects to `/login` |
+| 12  | [x] | `src/actions/auth.ts`              | @AuthExpert     | Server Actions: `signUp(formData)`, `signIn(formData)`, `signOut()` — Zod validation, Supabase auth calls, redirect on success      |
+| 13  | [x] | `src/app/(auth)/login/page.tsx`    | @FrontendExpert | Login form — email + password, `useActionState(signIn)`, display errors, link to register                                           |
+| 14  | [x] | `src/app/(auth)/register/page.tsx` | @FrontendExpert | Register form — email + password, `useActionState(signUp)`, display errors, email confirmation notice                               |
+| 15  | [x] | `src/app/auth/callback/route.ts`   | @AuthExpert     | Email confirmation callback — exchange code for session, redirect to `/dashboard`                                                   |
 
 **Phase 3 complete when:** User can sign up, receive confirmation email, sign in, and `verifySession()` correctly redirects unauthenticated users.
 
