@@ -34,7 +34,7 @@ export default function RegisterPage() {
             <span className='gradient-text'>ScoreCast</span>{' '}
             <span className='text-white/90'>AI</span>
           </CardTitle>
-          <div className='text-sm text-muted-foreground'>Регистрация</div>
+          <div className='text-sm text-muted-foreground'>Create an account</div>
         </CardHeader>
         <CardContent>
           <form action={formAction} className='space-y-4'>
@@ -54,7 +54,7 @@ export default function RegisterPage() {
               )}
             </div>
             <div className='space-y-2'>
-              <Label htmlFor='password'>Парола</Label>
+              <Label htmlFor='password'>Password</Label>
               <Input id='password' name='password' type='password' required />
               {state?.fieldErrors?.password && (
                 <p className='text-sm text-destructive'>
@@ -72,20 +72,20 @@ export default function RegisterPage() {
               className='w-full gap-2 bg-linear-to-r from-primary to-primary/80 text-primary-foreground shadow-sm shadow-black/40 hover:from-primary/90 hover:to-primary'
               disabled={isPending}
             >
-              {isPending ? 'Създаване на акаунт...' : 'Регистрирай се'}
+              {isPending ? 'Creating account...' : 'Create account'}
               {!isPending && <ArrowRight className='h-4 w-4' />}
             </Button>
           </form>
         </CardContent>
         <CardFooter className='flex flex-col space-y-4 text-center'>
           <p className='text-xs text-muted-foreground'>
-            След регистрация ще получиш email за потвърждение.
+            After signing up, you&apos;ll receive a confirmation email.
           </p>
           <Link
             href='/login'
             className='text-sm text-muted-foreground hover:text-accent'
           >
-            Вече имаш акаунт? Влез
+            Already have an account? Sign in
           </Link>
         </CardFooter>
       </Card>

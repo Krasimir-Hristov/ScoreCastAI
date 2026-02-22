@@ -34,7 +34,7 @@ export default function LoginPage() {
             <span className='gradient-text'>ScoreCast</span>{' '}
             <span className='text-white/90'>AI</span>
           </CardTitle>
-          <div className='text-sm text-muted-foreground'>Вход</div>
+          <div className='text-sm text-muted-foreground'>Sign in</div>
         </CardHeader>
         <CardContent>
           <form action={formAction} className='space-y-4'>
@@ -54,7 +54,7 @@ export default function LoginPage() {
               )}
             </div>
             <div className='space-y-2'>
-              <Label htmlFor='password'>Парола</Label>
+              <Label htmlFor='password'>Password</Label>
               <Input id='password' name='password' type='password' required />
               {state?.fieldErrors?.password && (
                 <p className='text-sm text-destructive'>
@@ -72,7 +72,7 @@ export default function LoginPage() {
               className='w-full gap-2 bg-linear-to-r from-primary to-primary/80 text-primary-foreground shadow-sm shadow-black/40 hover:from-primary/90 hover:to-primary'
               disabled={isPending}
             >
-              {isPending ? 'Влизане...' : 'Влез'}
+              {isPending ? 'Signing in...' : 'Sign in'}
               {!isPending && <ArrowRight className='h-4 w-4' />}
             </Button>
           </form>
@@ -82,7 +82,7 @@ export default function LoginPage() {
             href='/register'
             className='text-sm text-muted-foreground hover:text-accent'
           >
-            Нямаш акаунт? Регистрирай се
+            Don&apos;t have an account? Create one
           </Link>
         </CardFooter>
       </Card>
