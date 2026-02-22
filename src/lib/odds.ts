@@ -67,9 +67,7 @@ export async function fetchOdds(): Promise<Odds[]> {
   }
 
   try {
-    const url = new URL(
-      'https://api.the-odds-api.com/v4/sports/soccer_epl/odds',
-    );
+    const url = new URL('https://api.the-odds-api.com/v4/sports/upcoming/odds');
     url.searchParams.set('apiKey', apiKey);
     url.searchParams.set('regions', 'eu');
     url.searchParams.set('markets', 'h2h');
@@ -88,7 +86,10 @@ export async function fetchOdds(): Promise<Odds[]> {
     const json = await response.json();
     const parsed = z.array(OddsSchema).safeParse(json);
 
-    return parsed.success ? parsed.data : [];
+    if (!parsed.success) return [];
+
+    // Filter to only include soccer (football) to avoid baseball, basketball, etc.
+    return parsed.data.filter((odd) => odd.sport_key.startsWith('soccer_'));
   } catch (error) {
     console.warn('[odds] fetch error:', error);
     return [];

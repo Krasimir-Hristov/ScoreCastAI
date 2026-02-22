@@ -2,6 +2,7 @@
 
 import type { Fixture } from '@/lib/football';
 import type { Odds } from '@/lib/odds';
+import { getLeagueInfo } from '@/lib/league-info';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -16,12 +17,15 @@ import { DeepDiveModal } from '@/components/DeepDiveModal';
 function formatKickoff(isoLike: string) {
   const date = new Date(isoLike);
   if (Number.isNaN(date.getTime())) return isoLike;
-  return new Intl.DateTimeFormat(undefined, {
+  // Use a fixed locale to avoid server/client locale differences
+  return new Intl.DateTimeFormat('en-GB', {
     weekday: 'short',
     month: 'short',
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
+    hour12: false,
+    timeZone: 'UTC',
   }).format(date);
 }
 
@@ -45,17 +49,23 @@ export function MatchCard({
   fixture: Fixture;
   odds: Odds | null;
 }) {
-  const matchId = String(fixture.fixture.id);
   const kickoff = formatKickoff(fixture.fixture.date);
   const status = fixture.fixture.status.long;
   const prices = bestThreeWayPrices(odds);
+  const leagueInfo = getLeagueInfo(fixture.league.name);
 
   return (
     <Card className='transition-colors hover:bg-accent/40'>
       <CardHeader className='space-y-1'>
         <CardTitle className='text-base'>{fixture.league.name}</CardTitle>
         <CardDescription>
-          {kickoff} • {status}
+          <span className='text-xs text-muted-foreground/75'>
+            {leagueInfo.country}
+          </span>
+          <span className='mx-1 text-xs text-muted-foreground/75'>•</span>
+          <span className='text-xs text-muted-foreground'>
+            {kickoff} • {status}
+          </span>
         </CardDescription>
       </CardHeader>
 

@@ -33,6 +33,25 @@ export interface MatchListData {
   odds: Odds[];
 }
 
+const ALLOWED_LEAGUES = new Set([
+  'UEFA Champions League',
+  'UEFA Europa League',
+  'UEFA Europa Conference League',
+  'UEFA Conference League',
+  'Premier League',
+  'La Liga',
+  'Primera Division',
+  'Bundesliga',
+  'Bundesliga 1',
+  'Serie A',
+  'Ligue 1',
+  'Eredivisie',
+  'Primeira Liga',
+  'UEFA Nations League',
+  'Euro Championship',
+  'UEFA European Championship',
+]);
+
 /**
  * Flow A: Fetches all today's matches + odds.
  * Used on dashboard page load — no matchId required.
@@ -43,8 +62,15 @@ export async function getMatchList(): Promise<MatchListData> {
     fetchOdds(),
   ]);
 
+  const allFixtures =
+    fixturesResult.status === 'fulfilled' ? fixturesResult.value : [];
+
+  const filteredFixtures = allFixtures.filter((f) =>
+    ALLOWED_LEAGUES.has(f.league.name),
+  );
+
   return {
-    fixtures: fixturesResult.status === 'fulfilled' ? fixturesResult.value : [],
+    fixtures: filteredFixtures,
     odds: oddsResult.status === 'fulfilled' ? oddsResult.value : [],
   };
 }

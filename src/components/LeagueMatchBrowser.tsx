@@ -5,6 +5,7 @@ import { use, useMemo, useState } from 'react';
 import type { MatchListData } from '@/lib/proxy';
 import type { Odds } from '@/lib/odds';
 import type { Fixture } from '@/lib/football';
+import { getLeagueInfo } from '@/lib/league-info';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -15,7 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { MatchCard } from '@/components/MatchCard';
 
-type LeagueOption = { id: number; name: string };
+type LeagueOption = { id: number; name: string; country: string };
 
 function teamKey(home: string, away: string) {
   return `${home.toLowerCase()}__${away.toLowerCase()}`;
@@ -51,13 +52,21 @@ export function LeagueMatchBrowser({
   }, [data.odds]);
 
   const leagues = useMemo(() => {
-    const map = new Map<number, string>();
+    // Deduplicate by name and include country from league-info
+    const nameSet = new Set<string>();
+    const result: LeagueOption[] = [];
     for (const f of data.fixtures) {
-      map.set(f.league.id, f.league.name);
+      if (!nameSet.has(f.league.name)) {
+        nameSet.add(f.league.name);
+        const info = getLeagueInfo(f.league.name);
+        result.push({
+          id: f.league.id,
+          name: f.league.name,
+          country: info.country,
+        });
+      }
     }
-    return Array.from(map.entries())
-      .map(([id, name]) => ({ id, name }) satisfies LeagueOption)
-      .sort((a, b) => a.name.localeCompare(b.name));
+    return result.sort((a, b) => a.name.localeCompare(b.name));
   }, [data.fixtures]);
 
   const fixtures = useMemo(() => {
@@ -73,10 +82,13 @@ export function LeagueMatchBrowser({
     });
   }, [data.fixtures, selectedLeagueId]);
 
+  const selectedLeague = leagues.find((l) => l.id === selectedLeagueId);
   const selectedLabel =
     selectedLeagueId === 'all'
       ? 'All leagues'
-      : (leagues.find((l) => l.id === selectedLeagueId)?.name ?? 'League');
+      : selectedLeague
+        ? `${selectedLeague.name} (${selectedLeague.country})`
+        : 'League';
 
   return (
     <section className='space-y-4'>
@@ -110,8 +122,12 @@ export function LeagueMatchBrowser({
                 <DropdownMenuItem
                   key={l.id}
                   onSelect={() => setSelectedLeagueId(l.id)}
+                  className='flex flex-col items-start gap-0.5'
                 >
-                  {l.name}
+                  <span className='font-medium'>{l.name}</span>
+                  <span className='text-xs text-muted-foreground'>
+                    {l.country}
+                  </span>
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
