@@ -79,7 +79,8 @@ export function MatchCard({
 
       <CardFooter className='justify-between'>
         <DeepDiveModal
-          matchId={matchId}
+          homeTeam={fixture.teams.home.name}
+          awayTeam={fixture.teams.away.name}
           title={`${fixture.teams.home.name} vs ${fixture.teams.away.name}`}
           trigger={<Button size='sm'>Deep dive</Button>}
         />

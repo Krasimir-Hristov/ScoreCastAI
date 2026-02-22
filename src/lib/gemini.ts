@@ -27,12 +27,15 @@
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { z } from 'zod';
+import { buildPredictionPrompt } from '@/lib/gemini.prompts';
 
-// Zod schema for structured prediction output from Gemini
+// Expanded schema: winner, predicted score, confidence, reasoning, warnings
 const PredictionOutputSchema = z.object({
-  outcome: z.enum(['home', 'draw', 'away']),
+  winner: z.string(),
+  predictedScore: z.object({ home: z.number(), away: z.number() }),
   confidence: z.enum(['low', 'medium', 'high']),
   reasoning: z.string(),
+  warnings: z.array(z.string()),
 });
 
 export type PredictionOutput = z.infer<typeof PredictionOutputSchema>;
@@ -60,7 +63,7 @@ export async function generatePrediction(
   const apiKey = process.env.GOOGLE_API_KEY;
 
   if (!apiKey) {
-    console.error('[gemini] GOOGLE_API_KEY is not set.');
+    console.warn('[gemini] GOOGLE_API_KEY is not set.');
     return null;
   }
 
@@ -75,11 +78,26 @@ export async function generatePrediction(
         responseSchema: {
           type: 'object',
           properties: {
-            outcome: { type: 'string', enum: ['home', 'draw', 'away'] },
+            winner: { type: 'string' },
+            predictedScore: {
+              type: 'object',
+              properties: {
+                home: { type: 'number' },
+                away: { type: 'number' },
+              },
+              required: ['home', 'away'],
+            },
             confidence: { type: 'string', enum: ['low', 'medium', 'high'] },
             reasoning: { type: 'string' },
+            warnings: { type: 'array', items: { type: 'string' } },
           },
-          required: ['outcome', 'confidence', 'reasoning'],
+          required: [
+            'winner',
+            'predictedScore',
+            'confidence',
+            'reasoning',
+            'warnings',
+          ],
         } as unknown as any,
       },
     });
@@ -92,29 +110,7 @@ export async function generatePrediction(
 
     return parsed.success ? parsed.data : null;
   } catch (error) {
-    console.error('[gemini] prediction error:', error);
+    console.warn('[gemini] prediction error:', error);
     return null;
   }
-}
-
-/**
- * Builds the prompt string sent to Gemini.
- * Extracted here to keep generatePrediction() clean and testable.
- */
-function buildPredictionPrompt(input: PredictionInput): string {
-  const oddsLine = input.odds
-    ? `Odds — Home: ${input.odds.home}, Draw: ${input.odds.draw}, Away: ${input.odds.away}.`
-    : 'No odds data available.';
-
-  const newsLine = input.recentNews?.length
-    ? `Recent news: ${input.recentNews.join(' | ')}`
-    : 'No recent news available.';
-
-  return [
-    `You are a football analyst. Predict the outcome of the match below.`,
-    `Match: ${input.homeTeam} vs ${input.awayTeam}.`,
-    oddsLine,
-    newsLine,
-    `Provide a concise prediction with confidence level (low/medium/high) and a brief reason.`,
-  ].join('\n');
 }

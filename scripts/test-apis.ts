@@ -1,6 +1,6 @@
 import { loadEnvConfig } from '@next/env';
 import { fetchFixtures } from '../src/lib/football';
-import { searchNews } from '../src/lib/tavily';
+import { searchMatchContext } from '../src/lib/tavily';
 import { generatePrediction } from '../src/lib/gemini';
 
 // Зареждаме environment variables от .env.local
@@ -28,11 +28,14 @@ async function runTests() {
   console.log('-----------------------------------------\n');
 
   // 2. Тест на Tavily API
-  console.log('📰 [2/3] Тестване на Tavily API (searchNews)...');
-  const query = 'Real Madrid vs Barcelona';
-  const news = await searchNews(query);
+  console.log('📰 [2/3] Тестване на Tavily API (searchMatchContext)...');
+  const homeTeam = 'Real Madrid';
+  const awayTeam = 'Barcelona';
+  const news = await searchMatchContext(homeTeam, awayTeam);
   if (news.length > 0) {
-    console.log(`✅ Успех! Намерени са ${news.length} новини за "${query}".`);
+    console.log(
+      `✅ Успех! Намерени са ${news.length} новини за "${homeTeam} vs ${awayTeam}".`,
+    );
     console.log(`   Първа новина: ${news[0].title}`);
   } else {
     console.log(
@@ -44,17 +47,25 @@ async function runTests() {
   // 3. Тест на Gemini API
   console.log('🤖 [3/3] Тестване на Gemini API (generatePrediction)...');
   const prediction = await generatePrediction({
-    homeTeam: 'Real Madrid',
-    awayTeam: 'Barcelona',
+    homeTeam,
+    awayTeam,
     odds: { home: 2.1, draw: 3.5, away: 3.2 },
     recentNews: news.map((n) => n.title), // Подаваме заглавията от Tavily като контекст
   });
 
   if (prediction) {
     console.log('✅ Успех! Gemini генерира прогноза:');
-    console.log(`   Изход (Outcome): ${prediction.outcome}`);
+    console.log(`   Победител (Winner): ${prediction.winner}`);
+    console.log(
+      `   Резултат (Score): ${prediction.predictedScore.home} - ${prediction.predictedScore.away}`,
+    );
     console.log(`   Увереност (Confidence): ${prediction.confidence}`);
     console.log(`   Обосновка (Reasoning): ${prediction.reasoning}`);
+    if (prediction.warnings && prediction.warnings.length > 0) {
+      console.log(
+        `   Предупреждения (Warnings): ${prediction.warnings.join(', ')}`,
+      );
+    }
   } else {
     console.log(
       '⚠️ Грешка при генериране на прогноза. Проверете GOOGLE_API_KEY.',

@@ -3,7 +3,9 @@
 import { Suspense, use, useState } from 'react';
 import { motion } from 'framer-motion';
 
-import { getDeepDiveAnalysis, type DeepDiveData } from '@/lib/proxy';
+import { getDeepDiveNews, generateMatchPrediction } from '@/lib/proxy';
+import type { NewsItem } from '@/lib/tavily';
+import type { PredictionOutput } from '@/lib/gemini';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -15,39 +17,55 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { MatchPredictionCard } from '@/components/MatchPredictionCard';
 
-function DeepDiveResult({ promise }: { promise: Promise<DeepDiveData> }) {
-  const data = use(promise);
+function DeepDiveNews({
+  promise,
+  homeTeam,
+  awayTeam,
+}: {
+  promise: Promise<NewsItem[]>;
+  homeTeam: string;
+  awayTeam: string;
+}) {
+  const news = use(promise);
+  const [predictionPromise, setPredictionPromise] =
+    useState<Promise<PredictionOutput | null> | null>(null);
 
   return (
     <div className='space-y-5'>
-      <div className='space-y-2 rounded-xl border bg-card p-4'>
-        <div className='text-sm font-semibold'>Prediction</div>
-        {data.prediction ? (
-          <div className='space-y-1 text-sm'>
-            <div className='text-muted-foreground'>
-              Outcome:{' '}
-              <span className='text-foreground'>{data.prediction.outcome}</span>
-              {' • '}
-              Confidence:{' '}
-              <span className='text-foreground'>
-                {data.prediction.confidence}
-              </span>
-            </div>
-            <div className='text-sm'>{data.prediction.reasoning}</div>
-          </div>
-        ) : (
-          <div className='text-sm text-muted-foreground'>
-            No prediction available.
-          </div>
-        )}
-      </div>
-
       <div className='space-y-2'>
-        <div className='text-sm font-semibold'>Latest news</div>
-        {data.news?.length ? (
+        <div className='flex items-center justify-between'>
+          <div className='text-sm font-semibold'>Latest news</div>
+          {!predictionPromise && (
+            <Button
+              size='sm'
+              onClick={() =>
+                setPredictionPromise(
+                  generateMatchPrediction(homeTeam, awayTeam, news),
+                )
+              }
+            >
+              Get AI Prediction
+            </Button>
+          )}
+        </div>
+
+        {predictionPromise && (
+          <Suspense
+            fallback={
+              <div className='rounded-xl border bg-card p-4 text-sm text-muted-foreground'>
+                Generating AI prediction...
+              </div>
+            }
+          >
+            <MatchPredictionCard promise={predictionPromise} />
+          </Suspense>
+        )}
+
+        {news?.length ? (
           <ul className='space-y-2'>
-            {data.news.slice(0, 5).map((n) => (
+            {news.slice(0, 5).map((n) => (
               <li key={n.url} className='rounded-xl border bg-card p-3'>
                 <a
                   className='text-sm font-medium underline-offset-4 hover:underline'
@@ -74,28 +92,34 @@ function DeepDiveResult({ promise }: { promise: Promise<DeepDiveData> }) {
 }
 
 export function DeepDiveModal({
-  matchId,
+  homeTeam,
+  awayTeam,
   title,
   trigger,
 }: {
-  matchId: string;
+  homeTeam: string;
+  awayTeam: string;
   title: string;
   trigger: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
-  const [promise, setPromise] = useState<Promise<DeepDiveData> | null>(null);
+  const [newsPromise, setNewsPromise] = useState<Promise<NewsItem[]> | null>(
+    null,
+  );
 
   return (
     <Dialog
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
-        if (next && !promise) setPromise(getDeepDiveAnalysis(matchId));
+        if (next && !newsPromise) {
+          setNewsPromise(getDeepDiveNews(homeTeam, awayTeam));
+        }
       }}
     >
       <DialogTrigger asChild>{trigger}</DialogTrigger>
 
-      <DialogContent>
+      <DialogContent className='max-h-[85vh] overflow-y-auto'>
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -109,15 +133,19 @@ export function DeepDiveModal({
           </DialogHeader>
 
           <div className='mt-4'>
-            {promise ? (
+            {newsPromise ? (
               <Suspense
                 fallback={
                   <div className='rounded-xl border bg-card p-4 text-sm text-muted-foreground'>
-                    Running deep dive…
+                    Fetching latest news...
                   </div>
                 }
               >
-                <DeepDiveResult promise={promise} />
+                <DeepDiveNews
+                  promise={newsPromise}
+                  homeTeam={homeTeam}
+                  awayTeam={awayTeam}
+                />
               </Suspense>
             ) : (
               <div className='rounded-xl border bg-card p-4 text-sm text-muted-foreground'>
@@ -126,7 +154,7 @@ export function DeepDiveModal({
             )}
           </div>
 
-          <DialogFooter>
+          <DialogFooter className='mt-4'>
             <DialogClose asChild>
               <Button variant='outline'>Close</Button>
             </DialogClose>

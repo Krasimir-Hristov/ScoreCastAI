@@ -33,20 +33,10 @@ const NewsSchema = z.object({
 
 export type NewsItem = z.infer<typeof NewsSchema>;
 
-/**
- * Searches for news related to a specific match or query.
- *
- * @param query - The search query (e.g., 'Arsenal vs Chelsea', team names).
- * @returns A promise resolving to an array of news items.
- */
-export async function searchNews(query: string): Promise<NewsItem[]> {
-  const apiKey = process.env.TAVILY_API_KEY;
-
-  if (!apiKey) {
-    console.error('[tavily] TAVILY_API_KEY is not set.');
-    return [];
-  }
-
+async function tavilySearch(
+  apiKey: string,
+  query: string,
+): Promise<NewsItem[]> {
   try {
     const response = await fetch('https://api.tavily.com/search', {
       method: 'POST',
@@ -64,18 +54,63 @@ export async function searchNews(query: string): Promise<NewsItem[]> {
         max_results: 5,
       }),
     });
-
     if (!response.ok) {
-      console.error(`[tavily] API error: ${response.status}`);
+      console.warn(
+        `[tavily] API error: ${response.status} for query "${query}"`,
+      );
       return [];
     }
-
     const json = await response.json();
     const parsed = z.array(NewsSchema).safeParse(json.results || []);
-
     return parsed.success ? parsed.data : [];
   } catch (error) {
-    console.error('[tavily] fetch error:', error);
+    console.warn('[tavily] fetch error:', error);
     return [];
   }
+}
+
+/**
+ * Single targeted search (e.g. "Arsenal vs Chelsea").
+ */
+export async function searchNews(query: string): Promise<NewsItem[]> {
+  const apiKey = process.env.TAVILY_API_KEY;
+  if (!apiKey) {
+    console.warn('[tavily] TAVILY_API_KEY is not set.');
+    return [];
+  }
+  return tavilySearch(apiKey, query);
+}
+
+/**
+ * Comprehensive match context: match preview + home team injuries/suspensions
+ * + away team injuries/suspensions — all in parallel, deduplicated by URL.
+ */
+export async function searchMatchContext(
+  homeTeam: string,
+  awayTeam: string,
+): Promise<NewsItem[]> {
+  const apiKey = process.env.TAVILY_API_KEY;
+  if (!apiKey) {
+    console.warn('[tavily] TAVILY_API_KEY is not set.');
+    return [];
+  }
+
+  const results = await Promise.allSettled([
+    tavilySearch(apiKey, `${homeTeam} vs ${awayTeam} match preview`),
+    tavilySearch(apiKey, `${homeTeam} injury suspension lineup`),
+    tavilySearch(apiKey, `${awayTeam} injury suspension lineup`),
+  ]);
+
+  const seen = new Set<string>();
+  const items: NewsItem[] = [];
+  for (const r of results) {
+    if (r.status !== 'fulfilled') continue;
+    for (const item of r.value) {
+      if (!seen.has(item.url)) {
+        seen.add(item.url);
+        items.push(item);
+      }
+    }
+  }
+  return items;
 }
