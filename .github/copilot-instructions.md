@@ -60,6 +60,23 @@
 
 ---
 
+### @DesignerExpert
+
+**Role:** UI/UX & Design System Architect
+
+**Responsibilities:**
+
+- **Visual Polish:** Elevate component fidelity (colors, typography, spacing).
+- **Design System:** Maintain global design tokens in `@theme` configurations.
+- **Micro-Interactions:** Implement subtle, delightful animations via Framer Motion.
+- **Accessibility:** Ensure A11y compliance (contrast, meaningful text).
+- **Consistency:** Audit and unify component styling across the application.
+- Collaborate closely with `@FrontendExpert` to implement complex UI logic while ensuring visual integrity.
+
+**Takes the lead on:** Visual audits, CSS refactoring, theme updates, animation tuning, and UX polish tasks.
+
+---
+
 ### @AuthExpert
 
 **Role:** Security Specialist — Supabase Auth & User Management
@@ -140,7 +157,9 @@ When responding to a task:
 | User sessions, Data Access Layer      | @AuthExpert                              |
 | Protected routes                      | @AuthExpert                              |
 | New page, layout, or component        | @FrontendExpert                          |
-| Dashboard UI, styling, Tailwind       | @FrontendExpert                          |
+| Visual Polish / Design System         | @DesignerExpert                          |
+| Micro-interactions / Animations       | @DesignerExpert                          |
+| Dashboard UI, styling, Tailwind       | @FrontendExpert + @DesignerExpert        |
 | Auth pages UI (login/register forms)  | @FrontendExpert + @AuthExpert            |
 | History page (user predictions)       | @FrontendExpert + @SupabaseExpert        |
 | Code review, security, 150-line audit | @QA_Auditor                              |

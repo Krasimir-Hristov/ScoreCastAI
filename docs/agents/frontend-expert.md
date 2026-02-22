@@ -14,6 +14,16 @@
 
 ---
 
+## Tech Stack & Libraries (from package.json)
+
+- **Framework:** Next.js 16.1.6, React 19.2.3
+- **Styling:** Tailwind CSS v4, `@tailwindcss/postcss`, `tw-animate-css`
+- **Components:** shadcn/ui (Radix UI primitives), `lucide-react` (Icons)
+- **Animation:** `framer-motion` v12.34
+- **Utilities:** `clsx`, `tailwind-merge`, `class-variance-authority` (cva)
+
+---
+
 ## React 19 `use()` Pattern
 
 ```tsx
