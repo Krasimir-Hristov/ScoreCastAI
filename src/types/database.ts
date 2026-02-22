@@ -1,16 +1,6 @@
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[];
+import { DbRelation, PredictionData } from './database-shared';
 
-export interface PredictionData {
-  outcome: 'home' | 'draw' | 'away';
-  confidence: 'low' | 'medium' | 'high';
-  reasoning: string;
-}
+export type { Json, PredictionData } from './database-shared';
 
 export interface Database {
   public: {
@@ -46,13 +36,7 @@ export interface Database {
           prediction_data?: PredictionData;
           created_at?: string;
         };
-        Relationships: {
-          foreignKeyName: string;
-          columns: string[];
-          isOneToOne: boolean;
-          referencedRelation: string;
-          referencedColumns: string[];
-        }[];
+        Relationships: DbRelation[];
       };
       favorites: {
         Row: {
@@ -73,13 +57,7 @@ export interface Database {
           match_id?: string;
           created_at?: string;
         };
-        Relationships: {
-          foreignKeyName: string;
-          columns: string[];
-          isOneToOne: boolean;
-          referencedRelation: string;
-          referencedColumns: string[];
-        }[];
+        Relationships: DbRelation[];
       };
       match_history: {
         Row: {
@@ -109,13 +87,7 @@ export interface Database {
           match_date?: string | null;
           viewed_at?: string;
         };
-        Relationships: {
-          foreignKeyName: string;
-          columns: string[];
-          isOneToOne: boolean;
-          referencedRelation: string;
-          referencedColumns: string[];
-        }[];
+        Relationships: DbRelation[];
       };
     };
     Views: {
